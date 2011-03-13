@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>Forum: {{forum.name}}</title>
+    
+<link rel="stylesheet" href="/gforumstatic/themes/default/css/base.css" type="text/css" media="screen">
+
+</head>
+<body>
+
+{% include "user_panel.inc.html" %}
+
+<div class="wrapper gforum">
+
+<h1>{{thread.title}}</h1>
+<br>
+<div id="messagesP">
+<div id="messages">
+
+
+<div class="crumbs-holder">
+  <ul class="crumbs">
+    <li><a href="{{forumpath}}/view">Home</a></li>
+    <li><span>»&nbsp;</span><a href="{{forumpath}}/view/{{forum.permalink}}">{{forum.name}}</a></li>
+    <li><span>»&nbsp;</span><a href="{{forumpath}}/view/{{forum.permalink}}/{{thread.key.id}}/{{thread.permalink}}"><strong>{{thread.title}}</strong></a></li>
+  </ul>
+</div>
+
+
+<table style="width:100%; border-style: solid; border-width: 1px; border-collapse: collapse; border-color: #CCCCCC; margin-top: 10px;">
+{% for message in messages %}
+  <tr>
+    <td style="width: 200px; background-color: #EBF1F5; padding: 5px; padding-left: 10px; border-width: 1px;"><a href="{{forumpath}}/profile/{{message.user.key}}" class="profilelink"><strong>{{message.user.nick_name}}</strong></a></td>
+    <td style="background-color: #EBF1F5;">
+      <div style="width: 100%;">
+        <span style="float: left; font-size: 0.95em;">{{message.create_date|date:"Y-m-d H:i"}}</span>
+        <span style="float: right;"><a name="{{message.key.id}}">#{{ forloop.counter }}</a></span>
+      </div>
+    </td>
+  </tr>
+  <tr style="border-bottom: solid; border-width: 1px; border-color: #cccccc;">
+    <td style="background-color: #F6F9FC; padding: 5px; padding-left: 10px; vertical-align: top;">
+      <div style="display: block;">
+      <ul style="list-style: none outside none; font-size: 0.80em;">
+        <!--
+        <li><img height="60" width="60" alt="" src="http://fluxbb.org/forums/img/avatars/157.png?m=1280065636"></li>
+        -->
+        <li><img src="{{message.user.avatar_url}}"></li>
+        <li><span>Registered: {{message.user.create_date|date:"Y-m-d"}}</span></li>
+        <li><span>From: {% if message.user.where_from %}{{message.user.where_from}}{% endif %}</span></li>
+        <li><span>Posts: {{message.user.messages_number}}</span></li>
+      </ul>
+      </td>
+    <td style="padding: 10px; padding-left: 10px; vertical-align: top;">
+        <div class="postmsg">
+            <p>{{message.text}}</p>
+		</div>
+    </td>
+  </tr>
+  {% endfor %}  
+</table>
+
+
+
+</div>
+</div>
+
+{% if user_authorized %}
+
+<p>
+<a href="#" id="post_message_link">Post message</a>
+</p>
+
+<div id="post_message_form_div" class="hiddenElement">
+
+  <form id="create_thread_form" action="{{forumpath}}/api/v1/create_thread" method="POST">
+    <input id="forum_key_hi"  type="hidden" name="forum_key"  value="{{forum.key}}"/>
+    <input id="thread_key_hi" type="hidden" name="thread_key" value="{{thread.key}}"/>
+
+    <table>
+      <tr>
+        <td>Message:</td>
+        <td><textarea id="thread_message_ta" name="thread_message"></textarea></td>
+      </tr>
+    </table>
+    <input type="button" id="post_message_button" value="Post message"/>
+  </form>
+
+</div>
+
+{% endif %}
+
+</div>
+
+<!-- BEGIN SCRIPT SECTION -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js"></script>
+<script src="/gforumstatic/themes/default/js/gforum.js"></script>
+
+{% if user_authorized %}
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+    setEventHandlers();
+});
+
+function setEventHandlers() {
+    $('#post_message_link').click(showHidePostMessageForm);
+    $('#post_message_button').click(function() {
+        gforum.postThreadMessage({
+            forum_root:   '{{forumpath}}',
+            forum_key:    $('#forum_key_hi').val(),
+            thread_key  : $('#thread_key_hi').val(),
+            message_text: $('#thread_message_ta').val(),
+            callback: function(resp) {
+                if (resp.status == 'ok') {
+                    location.reload();
+                } else {
+                    alert(resp.errorMsg);
+                }
+            }
+        });
+    });
+}
+
+function showHidePostMessageForm() {
+    if ($('#post_message_form_div').hasClass('hiddenElement')) {
+        $('#post_message_form_div').removeClass('hiddenElement');
+        $('#post_message_form_div').addClass('visibleElement');
+        $('#post_message_link').html('Hide');
+    } else if ($('#post_message_form_div').hasClass('visibleElement')) {
+        $('#post_message_form_div').removeClass('visibleElement');
+        $('#post_message_form_div').addClass('hiddenElement');
+        $('#post_message_link').html('Post message');
+    }
+}
+</script>
+
+{% endif %}
+
+<!-- END SCRIPT SECTION -->
+
+</body>
+</html>

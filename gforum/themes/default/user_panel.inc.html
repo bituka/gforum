@@ -1,0 +1,24 @@
+
+{% if user_authorized %}
+
+<div style="background-color: yellow;">
+  <table>
+    <tr>
+      <td><img style="max-width: 50px; max-height: 50px;" src="{{user.avatar_url}}"></td>
+      <td>You entered as <a href="{{forumpath}}/profile/{{user.key}}">{{user.nick_name}}</a></td>
+      <td><a href="{{forumpath}}/logout/loginza">Logout</a></td>
+    </tr>
+  </table>        
+</div>
+
+{% endif %}
+
+{% if not user_authorized %}
+<p>
+<a href="https://loginza.ru/api/widget?providers_set=google,twitter,facebook,myopenid,vkontakte,mailruapi&lang=en&token_url={{host}}{{forumpath}}/login/loginza" class="loginza">Enter forum</a>
+
+<!-- 
+<a href="https://loginza.ru/api/widget?providers_set=google,facebook,twitter,yandex,mailruapi,mailru,vkontakte,openid&lang=en&token_url=http://localhost:8080/forum/login/loginza" class="loginza">Войти через OpenID</a>
+-->
+
+{% endif %}

@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>Gforum forums</title>
+
+<link rel="stylesheet" href="/gforumstatic/themes/default/css/base.css" type="text/css" media="screen">
+
+</head>
+<body>
+
+{% include "user_panel.inc.html" %}
+
+<div class="wrapper gforum">
+
+<h1>List of forums</h2>
+
+{% if not has_forums %}
+No forums
+{% endif %}
+
+{% if has_forums %}
+
+
+<table class="forumtable">
+  <thead>
+    <tr>
+      <th class="tcl">Forum</th>
+      <th class="tc2">Threads</th>
+      <th class="tc3">Messages</th>
+      <th class="tcr">Last post</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for forum in forums %}
+  <tr class="rowodd">
+    <td class="tcl">
+      <div class="tclcon">
+        <div>
+          <h3><a href="{{forumpath}}/view/{{forum.permalink}}">{{forum.name}}</a></h3>
+          <div class="forumdesc">{{forum.description}}</div>
+        </div>
+      </div>
+    </td>
+    <td class="tc2">{{forum.threads_number}}</td>
+    <td class="tc3">{{forum.messages_number}}</td>
+    <td class="tcr">
+      {% if forum.last_message %}
+        {{forum.last_message.create_date|date:"Y-m-d H:i"}}<span class="byuser"> by {{forum.last_message.user.nick_name}}</span>
+      {% endif %}  
+    </td>
+  </tr>
+  {% endfor %}  
+  </tbody>
+</table>
+
+<!-- 
+<div class="box">
+		<div class="inbox">
+			<dl class="conr">
+				<dt><strong>Board statistics</strong></dt>
+				<dd><span>Total number of registered users: <strong>2,501</strong></span></dd>
+				<dd><span>Total number of topics: <strong>3,584</strong></span></dd>
+				<dd><span>Total number of posts: <strong>29,784</strong></span></dd>
+			</dl>
+			<dl class="conl">
+				<dt><strong>User information</strong></dt>
+				<dd><span>Newest registered user: flp123</span></dd>
+				<dd><span>Registered users online: <strong>1</strong></span></dd>
+				<dd><span>Guests online: <strong>29</strong></span></dd>
+			</dl>
+			<dl class="clearb" id="onlinelist">
+				<dt><strong>Online: </strong></dt>				
+				<dd>richardk</dd>
+			</dl>
+		</div>
+	</div>
+-->
+
+{% endif %}
+
+</div>
+
+<script src="https://s3-eu-west-1.amazonaws.com/s1.loginza.ru/js/widget.js" type="text/javascript"></script>
+
+</body>
+</html>
