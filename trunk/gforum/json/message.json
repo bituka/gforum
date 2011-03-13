@@ -1,0 +1,7 @@
+{
+  "key" : "{{message.key}}",
+  "id"  : "{{message.key.id}}",
+  "text": "{{message.text}}",
+  "create_date": "{{message.create_date}}",
+  "update_date": "{{message.update_date}}"
+}

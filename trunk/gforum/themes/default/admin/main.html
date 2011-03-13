@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>Gforum forums</title>
+    
+<!--
+<link rel="stylesheet" href="gfthemes/default/css/base.css" type="text/css" media="screen">
+-->
+
+<style>
+.hiddenElement {
+    visibility: hidden;
+}
+
+.visibleElement {
+    visibility: visible;
+}
+</style>
+</head>
+<body>
+
+<p>
+<a href="{{logout_url}}">Logout</a>
+</p>
+<h1>GForum Administration</h2>
+
+<div id="forums_div">
+{% if not has_forums %}
+No forums
+{% endif %}
+
+{% if has_forums %}
+<table border="1" id="forums_table">
+  <thead>
+    <tr>
+      <th>Forum name</th>
+      <th>Threads</th>
+      <th>Messages</th>
+      <th>Last post date</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for forum in forums %}
+  <tr>
+    <td>
+      <a href="{{forumpath}}/{{forum.permalink}}">{{forum.name}}</a>
+    </td>
+    <td>
+      {{forum.threads_number}}
+    </td>
+    <td>
+      {{forum.messages_number}}
+    </td>
+    <td>
+      {{forum.last_post_date}}
+    </td>
+  </tr>
+  {% endfor %}  
+  </tbody>
+</table>
+{% endif %}
+</div>
+
+<p>
+<a href="#" id="create_forum_link">Create forum</a>
+</p>
+
+<div id="create_forum_form_div" class="hiddenElement">
+
+<form id="create_forum_form" action="{{forumpath}}/api/v1/create_forum" method="POST">
+<table>
+  <tr>
+    <td>Name:</td>
+    <td><input id="forum_name_i"      type="text" name="forum_name" /></td>
+  </tr>
+  <tr>
+    <td>Permalink:</td>
+    <td><input id="forum_permalink_i" type="text" name="forum_permalink"/></td>
+  </tr>
+  <tr>
+    <td>Description:</td>
+    <td><textarea id="forum_description_ta" name="forum_description"></textarea></td>
+  </tr>
+
+</table>
+<input type="button" id="create_forum_button" value="Create forum"/>
+</form>
+
+</div>
+<!-- BEGIN SCRIPT SECTION -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js"></script>
+
+<script type="text/javascript">
+var gforumadmin = {}
+
+$(document).ready(function() {
+    setEventHandlers();
+});
+
+function setEventHandlers() {
+    $('#create_forum_link').click(gforumadmin.showHideCreateForumForm);
+    $('#create_forum_button').click(gforumadmin.createForum);
+    $('#forum_name_i').keyup(gforumadmin.printForumPermalink);
+}
+
+gforumadmin.printForumPermalink = function() {
+    $('#forum_permalink_i').val(gforumadmin.translit($('#forum_name_i').val()));
+}
+
+gforumadmin.showHideCreateForumForm = function() {
+    if ($('#create_forum_form_div').hasClass('hiddenElement')) {
+        $('#create_forum_form_div').removeClass('hiddenElement');
+        $('#create_forum_form_div').addClass('visibleElement');
+        $('#create_forum_link').html('Hide');
+    } else if ($('#create_forum_form_div').hasClass('visibleElement')) {
+        $('#create_forum_form_div').removeClass('visibleElement');
+        $('#create_forum_form_div').addClass('hiddenElement');
+        $('#create_forum_link').html('Create forum');
+    }
+} 
+
+gforumadmin.createForum = function() {
+    //$('#forum_permalink_i').val(gforumadmin.translit($('#forum_name_i').val()))
+    
+    var postUrl = $('#create_forum_form').attr('action');
+    jQuery.ajax({
+        type: 'POST',
+        //url: $('#post_message_form').attr('action'),
+        url: postUrl,
+        data: {
+            forum_name     :   $('#forum_name_i').val(),
+            forum_permalink:   $('#forum_permalink_i').val(),
+            forum_description: $('#forum_description_ta').val()
+        },
+        success: function(data, textStatus, jqXHR) {
+            var resp = jQuery.parseJSON(data);
+            if (resp.status == 'ok') {
+                location.reload();
+            } else {
+                alert(resp.errorMsg);
+            }
+        }
+    });
+    
+}   
+
+
+var tmap = [];
+tmap[' ']='_';
+tmap['а']='a';
+tmap['б']='b';
+tmap['в']='v';
+tmap['г']='g';
+tmap['д']='d';
+tmap['е']='e';
+tmap['ё']='jo';
+tmap['ж']='zh';
+tmap['з']='z';
+tmap['и']='i';
+tmap['й']='jj';
+tmap['к']='k';
+tmap['л']='l';
+tmap['м']='m';
+tmap['н']='n';
+tmap['о']='o';
+tmap['п']='p';
+tmap['р']='r';
+tmap['с']='s';
+tmap['т']='t';
+tmap['у']='u';
+tmap['ф']='f';
+tmap['х']='kh';
+tmap['ц']='ts';
+tmap['ч']='ch';
+tmap['ш']='sh';
+tmap['щ']='shh';
+tmap['ъ']='';
+tmap['ы']='y';
+tmap['ь']='';
+tmap['э']='eh';
+tmap['ю']='ju';
+tmap['я']='ja';
+tmap['А']='A';
+tmap['Б']='B';
+tmap['В']='V';
+tmap['Г']='G';
+tmap['Д']='D';
+tmap['Е']='E';
+tmap['Ё']='Jo';
+tmap['Ж']='Zh';
+tmap['З']='Z';
+tmap['И']='I';
+tmap['Й']='Jj';
+tmap['К']='K';
+tmap['Л']='L';
+tmap['М']='M';
+tmap['Н']='N';
+tmap['О']='O';
+tmap['П']='P';
+tmap['Р']='R';
+tmap['С']='S';
+tmap['Т']='T';
+tmap['У']='U';
+tmap['Ф']='F';
+tmap['Х']='Kh';
+tmap['Ц']='C';
+tmap['Ч']='Ch';
+tmap['Ш']='Sh';
+tmap['Щ']='Shh';
+tmap['Ъ']='';
+tmap['Ы']='Y';
+tmap['Ь']='';
+tmap['Э']='Eh';
+tmap['Ю']='Ju';
+tmap['Я']='Ja';
+
+gforumadmin.translit = function(txt) {
+    var txt1 = [];
+    for (var i=0; i<txt.length; i++) {
+        var c = tmap[txt.charAt(i)];
+        if (c) txt1.push(c);
+        else   txt1.push(txt.charAt(i));
+    }
+    return txt1.join('');
+}
+</script>
+<!-- END SCRIPT SECTION -->
+</body>
+</html>

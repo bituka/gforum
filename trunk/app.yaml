@@ -1,0 +1,9 @@
+application: gforum
+version: 1
+runtime: python
+api_version: 1
+
+includes:
+- gforum/gforum.yaml
+
+
