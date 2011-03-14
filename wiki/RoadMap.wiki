@@ -1,7 +1,5 @@
 #summary RoadMap of GForum development
 
-= RoadMap =
-
 == Version 0.2 ==
 
 Add Gravatar support to profile, add more accounts
