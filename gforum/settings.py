@@ -5,6 +5,7 @@
 # General settings
 ##############################################################################
 
+GFORUM_DEBUG = True
 # path to the forum
 # should be the same as in gforum.yaml URL handlers
 GFORUM_FORUM_PATH   = '/forum'
