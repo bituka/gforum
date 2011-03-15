@@ -1,0 +1,39 @@
+handlers:
+
+- url: /test.*
+  script: gforum/test.py
+
+- url: /forum
+  script: gforum/view.py
+
+- url: /forum/
+  script: gforum/view.py
+
+- url: /forum/admin.*
+  script: gforum/admin.py
+
+- url: /forum/avatar/.*
+  script: gforum/avatar.py
+
+- url: /forum/view.*
+  script: gforum/view.py
+
+- url: /forum/api/v1/.*
+  script: gforum/apiv11.py
+
+- url: /forum/profile/.*
+  script: gforum/profile.py
+
+- url: /forum/login/loginza
+  script: gforum/loginza-login.py
+
+- url: /forum/logout/loginza
+  script: gforum/loginza-logout.py
+
+- url: /gforumstatic/themes/default/css
+  static_dir: gforum/themes/default/css
+
+- url: /gforumstatic/themes/default/js
+  static_dir: gforum/themes/default/js
+
+

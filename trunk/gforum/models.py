@@ -137,5 +137,10 @@ class GForumSession(db.Model):
     create_date  = db.DateTimeProperty(auto_now_add=True)
     update_date  = db.DateTimeProperty(auto_now=True)
 
-
+class GForumImage(db.Model):
+    blob = db.BlobProperty()
+    content_type = db.StringProperty()
+    create_date  = db.DateTimeProperty(auto_now_add=True)
+    update_date  = db.DateTimeProperty(auto_now=True)
+    is_avatar    = db.BooleanProperty()
 
