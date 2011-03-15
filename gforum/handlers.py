@@ -21,12 +21,43 @@ import logging
 import os
 
 from google.appengine.ext import webapp
+from google.appengine.ext.webapp import template
 
 from gforum import models
+from gforum import settings
 
 # Log a message each time this module get loaded.
 logging.info('Loading %s, app version = %s', __name__, os.getenv('CURRENT_VERSION_ID'))
 
+gforum_root  = settings.GFORUM_FORUM_PATH
+gforum_theme = settings.GFORUM_THEME
+
+###############################################################################
+#################################### HANDLERS #################################
+###############################################################################
+
+class GForumAbstractHandler(webapp.RequestHandler):
+    def getDefaultTemplateData(self):
+        logging.info('[GForumAbstractHandlerþgetDefaultTemplateData]')
+        user = gforum.users.getAuthorizedUser(self.request, self.response)
+        
+        user_authorized = True if user else False
+        logging.info('user=%s' % user)
+        user.avatar_url = gforum.users.getAvatarUrl(user, gforum_root)
+        
+        template_values = {
+            'user_authorized' : user_authorized,
+            'user'            : user,
+            'forumpath'       : gforum_root,
+            'host'            : '%s://%s' % (self.request.scheme, self.request.host)
+        }
+        return template_values
+        
+    def getTemplatePath(self, name):
+        template_path = 'themes/%s/%s' % (gforum_theme, name)
+        path = os.path.join(os.path.dirname(__file__), template_path)
+        return path
+    
 class GForum403Handler(webapp.RequestHandler):
     def get(self):
         pass
@@ -35,9 +66,26 @@ class GForum404Handler(webapp.RequestHandler):
     def get(self):
         pass
 
-class GForumMainHandler(webapp.RequestHandler):
+class GForumMainHandler(GForumAbstractHandler):
+
     def get(self):
-        pass
+        try: 
+            self.handle()
+        except Exception, e:
+            logging.error('%s: \'%s\'' % (self.__class__.__name__, str(e)))
+            pass
+
+    def handle(self):
+        forums = models.GForumForum.all().order('name').fetch()
+        has_forums = len(forums)>0
+
+        template_values = self.getDefaultTemplateData()
+        template_values['has_forums'] = has_forums
+        template_values['forums']     = forums
+
+        path = self.getTemplatePath('main.html')
+        self.response.out.write(template.render(path, template_values).decode('utf-8'))
+        
 
 class GForumForumHandler(webapp.RequestHandler):
     def get(self):
@@ -56,7 +104,7 @@ class GForumImageHandler(webapp.RequestHandler):
         try: 
             self.handle()
         except Exception, e:
-            logging.error('GForumImageHandler: \'%s\'' % str(e))
+            logging.error('%s: \'%s\'' % (self.__class__.__name__, str(e)))
             pass
             
     def handle(self):
@@ -67,7 +115,6 @@ class GForumImageHandler(webapp.RequestHandler):
             self.response.headers['Content-Type'] = image.content_type
             self.response.out.write(image.blob)
         else:
-            # do nothing
             pass
 
 class GForumProfileHandler(webapp.RequestHandler):
