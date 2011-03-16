@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 # Copyright 2011 Ivan Ryndin
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,6 +28,7 @@ from google.appengine.ext.webapp import template
 
 from gforum import models
 from gforum import settings
+from gforum import sessions
 
 # Log a message each time this module get loaded.
 logging.info('Loading %s, app version = %s', __name__, os.getenv('CURRENT_VERSION_ID'))
@@ -38,12 +42,14 @@ gforum_theme = settings.GFORUM_THEME
 
 class GForumAbstractHandler(webapp.RequestHandler):
     def getDefaultTemplateData(self):
-        logging.info('[GForumAbstractHandlerþgetDefaultTemplateData]')
-        user = gforum.users.getAuthorizedUser(self.request, self.response)
+        logging.info('[GForumAbstractHandler.getDefaultTemplateData]')
+        user = sessions.getAuthorizedUser(self.request, self.response)
         
         user_authorized = True if user else False
-        logging.info('user=%s' % user)
-        user.avatar_url = gforum.users.getAvatarUrl(user, gforum_root)
+        if not user_authorized:
+            logging.info('User is not authorized, viewing forums as guest')
+        else:
+            logging.info('Detected authorized user')
         
         template_values = {
             'user_authorized' : user_authorized,
@@ -57,6 +63,10 @@ class GForumAbstractHandler(webapp.RequestHandler):
         template_path = 'themes/%s/%s' % (gforum_theme, name)
         path = os.path.join(os.path.dirname(__file__), template_path)
         return path
+
+    def redirect500(self):
+        logging.info('[GForumAbstractHandler.redirect500]')
+        self.redirect('%s/500.html' % gforum_root)
     
 class GForum403Handler(webapp.RequestHandler):
     def get(self):
@@ -66,6 +76,11 @@ class GForum404Handler(webapp.RequestHandler):
     def get(self):
         pass
 
+class GForum500Handler(GForumAbstractHandler):
+    def get(self):
+        path = self.getTemplatePath('500.html')
+        self.response.out.write(template.render(path, {}).decode('utf-8'))
+
 class GForumMainHandler(GForumAbstractHandler):
 
     def get(self):
@@ -73,10 +88,11 @@ class GForumMainHandler(GForumAbstractHandler):
             self.handle()
         except Exception, e:
             logging.error('%s: \'%s\'' % (self.__class__.__name__, str(e)))
-            pass
+            self.redirect500()
 
     def handle(self):
-        forums = models.GForumForum.all().order('name').fetch()
+        logging.info('[GForumMainHandler.handle]')
+        forums = models.GForumForum.all().order('name').fetch(limit=1000)
         has_forums = len(forums)>0
 
         template_values = self.getDefaultTemplateData()

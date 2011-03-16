@@ -25,6 +25,7 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 
 from gforum import settings
 from gforum import handlers
+from gforum import handlers_admin
 from gforum import timings
 
 # Log a message each time this module get loaded.
@@ -35,6 +36,7 @@ gforum_root  = settings.GFORUM_FORUM_PATH
 ROUTES = [
     ('%s/403.html'      % gforum_root, handlers.GForum403Handler),
     ('%s/404.html'      % gforum_root, handlers.GForum404Handler),
+    ('%s/500.html'      % gforum_root, handlers.GForum500Handler),
     ('%s'               % gforum_root, handlers.GForumMainHandler),
     ('%s/'              % gforum_root, handlers.GForumMainHandler),
     ('%s/f/.*'          % gforum_root, handlers.GForumForumHandler),
@@ -46,7 +48,7 @@ ROUTES = [
     ('%s/login/loginza' % gforum_root, handlers.GForumLoginzaLoginHandler),
     ('%s/logout/loginza'% gforum_root, handlers.GForumLoginzaLogoutHandler),
     ('%s/api/v1/.*'     % gforum_root, handlers.GForumApiv1Handler),
-    ('%s/admin.*'       % gforum_root, handlers.GForumAdminHandler)
+    ('%s/admin.*'       % gforum_root, handlers_admin.GForumAdminHandler)
 ]
 
 def main():
