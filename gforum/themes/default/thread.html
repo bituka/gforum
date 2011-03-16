@@ -76,7 +76,6 @@
 <div id="post_message_form_div" class="hiddenElement">
 
   <form id="create_thread_form" action="{{forumpath}}/api/v1/create_thread" method="POST">
-    <input id="forum_key_hi"  type="hidden" name="forum_key"  value="{{forum.key}}"/>
     <input id="thread_key_hi" type="hidden" name="thread_key" value="{{thread.key}}"/>
 
     <table>
@@ -111,7 +110,6 @@ function setEventHandlers() {
     $('#post_message_button').click(function() {
         gforum.postThreadMessage({
             forum_root:   '{{forumpath}}',
-            forum_key:    $('#forum_key_hi').val(),
             thread_key  : $('#thread_key_hi').val(),
             message_text: $('#thread_message_ta').val(),
             callback: function(resp) {

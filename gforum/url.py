@@ -49,6 +49,7 @@ ROUTES = [
     ('%s/logout/loginza'% gforum_root, handlers.GForumLoginzaLogoutHandler),
     ('%s/api/v1/create_forum'  % gforum_root, handlers_webapi_v1.GForumCreateForumApiHandler),
     ('%s/api/v1/create_thread' % gforum_root, handlers_webapi_v1.GForumCreateThreadApiHandler),
+    ('%s/api/v1/post_message'  % gforum_root, handlers_webapi_v1.GForumPostMessageApiHandler),
     ('%s/admin.*'       % gforum_root, handlers_admin.GForumAdminHandler)
 ]
 

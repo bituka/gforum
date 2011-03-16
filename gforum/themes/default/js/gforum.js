@@ -10,7 +10,6 @@ var gforum = {};
  *   callback {Function} - (optional) callback function which receives response object
  */
 gforum.createThread = function(opt) {
-    var postUrl = $('#create_thread_form').attr('action');
     jQuery.ajax({
         type: 'POST',
         url: opt.forum_root + '/api/v1/create_thread',
@@ -38,12 +37,10 @@ gforum.createThread = function(opt) {
  *   callback {Function} - (optional) callback function which receives response object
  */
 gforum.postThreadMessage = function(opt) {
-    var postUrl = $('#post_message_form').attr('action');
     jQuery.ajax({
         type: 'POST',
         url: opt.forum_root + '/api/v1/post_message',
         data: {
-            forum_key   : opt.forum_key,
             thread_key  : opt.thread_key,
             message_text: opt.message_text
         },
