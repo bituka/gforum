@@ -1,13 +1,8 @@
 #summary RoadMap of GForum development
 
-== Version 0.2 ==
+== Version 0.31 ==
 
-Add Gravatar support to profile, add more accounts
-
-  * Add !FaceBook accounts
-  * Add MyOpenID accounts
-  * Add !MailRu accounts
-  * Add Gravatar support for user profile 
+Add another theme to themes
 
 == Version 0.3 ==
 
@@ -18,6 +13,13 @@ Make Administrator interface
   * Show list of users
   * Ban/unban users
 
-== Version 0.31 ==
+== Version 0.2 ==
 
-Add another theme to themes
+Add Gravatar support to profile, add more accounts
+
+  * Add !FaceBook accounts
+  * Add MyOpenID accounts
+  * Add !MailRu accounts
+  * Add Gravatar support for user profile 
+
+
