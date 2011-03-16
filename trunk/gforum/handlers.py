@@ -153,10 +153,6 @@ class GForumThreadHandler(webapp.RequestHandler):
     def get(self):
         pass
 
-class GForumAvatarHandler(webapp.RequestHandler):
-    def get(self):
-        pass
-
 class GForumImageHandler(webapp.RequestHandler):
     def get(self):
         try: 
@@ -233,7 +229,8 @@ class GForumLoginzaLoginHandler(GForumAbstractHandler):
         self.redirectForumHome()
 
 
-class GForumLoginzaLogoutHandler(webapp.RequestHandler):
+class GForumLoginzaLogoutHandler(GForumAbstractHandler):
     def get(self):
-        pass
+        sessions.finishSession(self.request, self.response)
+        self.redirectForumHome()
      
