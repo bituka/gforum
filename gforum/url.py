@@ -26,6 +26,7 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 from gforum import settings
 from gforum import handlers
 from gforum import handlers_admin
+from gforum import handlers_webapi_v1
 from gforum import timings
 
 # Log a message each time this module get loaded.
@@ -47,7 +48,8 @@ ROUTES = [
     ('%s/sitemap.xml'   % gforum_root, handlers.GForumSitemapHandler),
     ('%s/login/loginza' % gforum_root, handlers.GForumLoginzaLoginHandler),
     ('%s/logout/loginza'% gforum_root, handlers.GForumLoginzaLogoutHandler),
-    ('%s/api/v1/.*'     % gforum_root, handlers.GForumApiv1Handler),
+    ('%s/api/v1/create_forum'  % gforum_root, handlers_webapi_v1.GForumCreateForumApiHandler),
+    ('%s/api/v1/create_thread' % gforum_root, handlers_webapi_v1.GForumCreateThreadApiHandler),
     ('%s/admin.*'       % gforum_root, handlers_admin.GForumAdminHandler)
 ]
 

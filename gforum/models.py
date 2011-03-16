@@ -1,6 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# Copyright 2011 Ivan Ryndin
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+
+__author__ = 'Ivan P. Ryndin'
 from google.appengine.ext import db
 
 AUTH_PROVIDER_GOOGLE   = 1
@@ -13,33 +31,32 @@ AUTH_PROVIDER_OPENID   = 7
 
 class GForumVkontakteData(db.Model):
     loginza_response = db.StringProperty()
-    create_date  = db.DateTimeProperty(auto_now_add=True)
+    create_date = db.DateTimeProperty(auto_now_add=True)
     update_date = db.DateTimeProperty(auto_now=True)
-    identity = db.StringProperty()
-    provider = db.StringProperty()
-    first_name = db.StringProperty()
+    identity  = db.StringProperty()
+    provider  = db.StringProperty()
+    first_name= db.StringProperty()
     last_name = db.StringProperty()
     nick_name = db.StringProperty()
     gender    = db.StringProperty()
     dob       = db.StringProperty()
     country   = db.StringProperty()
-    photo     = db.BlobProperty()
-    photo_ct  = db.StringProperty()
+    avatar_url= db.StringProperty()
     uid       = db.StringProperty()
 
 class GForumGoogleData(db.Model):
     loginza_response = db.StringProperty()
-    create_date  = db.DateTimeProperty(auto_now_add=True)
+    create_date = db.DateTimeProperty(auto_now_add=True)
     update_date = db.DateTimeProperty(auto_now=True)
-    identity = db.StringProperty()
-    provider = db.StringProperty()
-    first_name = db.StringProperty()
-    last_name = db.StringProperty()
-    full_name = db.StringProperty()
-    email = db.StringProperty()
-    language = db.StringProperty()
-    country  = db.StringProperty()
-    uid = db.StringProperty()
+    identity    = db.StringProperty()
+    provider    = db.StringProperty()
+    first_name  = db.StringProperty()
+    last_name   = db.StringProperty()
+    full_name   = db.StringProperty()
+    email       = db.StringProperty()
+    language    = db.StringProperty()
+    country     = db.StringProperty()
+    uid         = db.StringProperty()
 
 class GForumTwitterData(db.Model):
     loginza_response = db.StringProperty()
@@ -47,8 +64,7 @@ class GForumTwitterData(db.Model):
     update_date = db.DateTimeProperty(auto_now=True)
     identity = db.StringProperty()
     provider = db.StringProperty()
-    photo     = db.BlobProperty()
-    photo_ct  = db.StringProperty()
+    avatar_url= db.StringProperty()
     biography = db.StringProperty()
     web_default = db.StringProperty()
     nick_name = db.StringProperty()
@@ -73,6 +89,7 @@ class GForumUser(db.Model):
     avatar_url   = db.StringProperty()
     where_from   = db.StringProperty()
     messages_number = db.IntegerProperty()
+    message_list    = db.ListProperty(db.Key)
     signature = db.StringProperty()
     auth_provider = db.StringProperty()
     auth_provider_identity = db.StringProperty()
@@ -80,14 +97,6 @@ class GForumUser(db.Model):
     google_data      = db.ReferenceProperty(GForumGoogleData)
     twitter_data     = db.ReferenceProperty(GForumTwitterData)
     
-class GForumOptions(db.Model):
-    allow_guest_posts = db.BooleanProperty()
-    
-class GForumStatistics(db.Model):
-    threads_number   = db.IntegerProperty()
-    messages_number = db.IntegerProperty()
-    last_post_date  = db.DateTimeProperty()
-
 class GForumMessage(db.Model):
     text = db.TextProperty()
     create_date = db.DateTimeProperty(auto_now_add=True)
@@ -101,8 +110,6 @@ class GForumForum(db.Model):
     description = db.StringProperty(multiline=True)
     create_date = db.DateTimeProperty(auto_now_add=True)
     last_post_date = db.DateTimeProperty()
-    options     = db.ReferenceProperty(GForumOptions)
-    statistics  = db.ReferenceProperty(GForumStatistics)
     messages_number  = db.IntegerProperty()
     last_message     = db.ReferenceProperty(GForumMessage)
     threads_number   = db.IntegerProperty()

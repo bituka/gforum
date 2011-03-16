@@ -45,7 +45,7 @@ No forums
   {% for forum in forums %}
   <tr>
     <td>
-      <a href="{{forumpath}}/{{forum.permalink}}">{{forum.name}}</a>
+      <a href="{{forumpath}}/f/{{forum.permalink}}">{{forum.name}}</a>
     </td>
     <td>
       {{forum.threads_number}}
@@ -69,7 +69,7 @@ No forums
 
 <div id="create_forum_form_div" class="hiddenElement">
 
-<form id="create_forum_form" action="{{forumpath}}/api/v1/create_forum" method="POST">
+<form id="create_forum_form">
 <table>
   <tr>
     <td>Name:</td>
@@ -124,7 +124,7 @@ gforumadmin.showHideCreateForumForm = function() {
 gforumadmin.createForum = function() {
     //$('#forum_permalink_i').val(gforumadmin.translit($('#forum_name_i').val()))
     
-    var postUrl = $('#create_forum_form').attr('action');
+    var postUrl = '{{forumpath}}/api/v1/create_forum';
     jQuery.ajax({
         type: 'POST',
         //url: $('#post_message_form').attr('action'),

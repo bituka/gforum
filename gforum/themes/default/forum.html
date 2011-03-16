@@ -17,16 +17,10 @@
 <h1>{{forum.name}}</h1>
 <br/>
 
-<!--
-<p>
-<a href="{{forumpath}}/view">List of forums</a>
-</p>
--->
-
 <div class="crumbs-holder">
   <ul class="crumbs">
-    <li><a href="{{forumpath}}/view">Home</a></li>
-    <li><span>»&nbsp;</span><a href="{{forumpath}}/view/{{forum.permalink}}"><strong>{{forum.name}}</strong></a></li>
+    <li><a href="{{forumpath}}">Home</a></li>
+    <li><span>»&nbsp;</span><a href="{{forumpath}}/f/{{forum.permalink}}"><strong>{{forum.name}}</strong></a></li>
   </ul>
 </div>
 
@@ -46,7 +40,7 @@
     <td class="tcl">
       <div class="tclcon">
         <div>
-          <a href="{{forumpath}}/view/{{forum.permalink}}/{{thread.key.id}}/{{thread.permalink}}">{{thread.title}}</a> <span class="byuser">by {{thread.thread_starter.nick_name}}</span>
+          <a href="{{forumpath}}/t/{{thread.key.id}}/{{thread.permalink}}">{{thread.title}}</a> <span class="byuser">by {{thread.thread_starter.nick_name}}</span>
         </div>        
       </div>
     </td>
