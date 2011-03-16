@@ -42,7 +42,6 @@ ROUTES = [
     ('%s/'              % gforum_root, handlers.GForumMainHandler),
     ('%s/f/.*'          % gforum_root, handlers.GForumForumHandler),
     ('%s/t/.*'          % gforum_root, handlers.GForumThreadHandler),
-    ('%s/avatar/.*'     % gforum_root, handlers.GForumAvatarHandler),
     ('%s/image/.*'      % gforum_root, handlers.GForumImageHandler),
     ('%s/profile/.*'    % gforum_root, handlers.GForumProfileHandler),
     ('%s/sitemap.xml'   % gforum_root, handlers.GForumSitemapHandler),
