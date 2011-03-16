@@ -1,12 +1,7 @@
 #!/usr/bin/env python
-
-import cgi
-import datetime
-import wsgiref.handlers
+# -*- coding: utf-8 -*-
 
 from google.appengine.ext import db
-from google.appengine.api import users
-from google.appengine.ext import webapp
 
 AUTH_PROVIDER_GOOGLE   = 1
 AUTH_PROVIDER_FACEBOOK = 2
@@ -75,10 +70,6 @@ class GForumUser(db.Model):
     email        = db.StringProperty()
     create_date  = db.DateTimeProperty(auto_now_add=True)
     last_login_date = db.DateTimeProperty()
-    use_gravatar = db.BooleanProperty()
-    avatar       = db.BlobProperty()
-    avatar_ct    = db.StringProperty()
-    gravatar     = db.ReferenceProperty(GForumGravatarData)
     avatar_url   = db.StringProperty()
     where_from   = db.StringProperty()
     messages_number = db.IntegerProperty()
@@ -104,7 +95,7 @@ class GForumMessage(db.Model):
     user = db.ReferenceProperty(GForumUser)
     thread_key = db.StringProperty()
     
-class GForum(db.Model):
+class GForumForum(db.Model):
     name        = db.StringProperty()
     permalink   = db.StringProperty()
     description = db.StringProperty(multiline=True)
@@ -126,12 +117,12 @@ class GForumThread(db.Model):
     views_number    = db.IntegerProperty()
     message_list    = db.ListProperty(db.Key)
     thread_starter  = db.ReferenceProperty(GForumUser)
-    forum = db.ReferenceProperty(GForum)
+    forum = db.ReferenceProperty(GForumForum)
     last_message = db.ReferenceProperty(GForumMessage)
     
 class GForumSession(db.Model):
-    session_key = db.StringProperty()
-    gforum_user = db.ReferenceProperty(GForumUser)
+    session_key  = db.StringProperty()
+    gforum_user  = db.ReferenceProperty(GForumUser)
     ip_address   = db.StringProperty()
     expire_date  = db.DateTimeProperty()
     create_date  = db.DateTimeProperty(auto_now_add=True)
