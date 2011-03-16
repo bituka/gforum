@@ -128,8 +128,6 @@ def createNewUser(obj, objStr):
     #    user.avatar_url = util.generateImageUrl(image)
     
     user.put()
-    user.avatar_url = '%s/avatar/%s' % (gforum_root, user.key())
-    user.put()
     return user
 
 def createNewVKontakteData(obj, objStr):

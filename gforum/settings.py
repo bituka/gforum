@@ -7,7 +7,7 @@
 
 GFORUM_DEBUG = True
 
-GFORUM_USE_VKONTAKTE_EMULATOR = True
+GFORUM_USE_VKONTAKTE_EMULATOR = False
 
 # path to the forum
 # should be the same as in gforum.yaml URL handlers
