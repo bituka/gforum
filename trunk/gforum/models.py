@@ -109,7 +109,6 @@ class GForumForum(db.Model):
     permalink   = db.StringProperty()
     description = db.StringProperty(multiline=True)
     create_date = db.DateTimeProperty(auto_now_add=True)
-    last_post_date = db.DateTimeProperty()
     messages_number  = db.IntegerProperty()
     last_message     = db.ReferenceProperty(GForumMessage)
     threads_number   = db.IntegerProperty()

@@ -149,9 +149,36 @@ class GForumForumHandler(GForumAbstractHandler):
         logging.info('[extractForumPermalink] permalink=\'%s\'' % permalink)
         return permalink
 
-class GForumThreadHandler(webapp.RequestHandler):
+class GForumThreadHandler(GForumAbstractHandler):
     def get(self):
-        pass
+        try: 
+            self.handle()
+        except Exception, e:
+            logging.error('%s: \'%s\'' % (self.__class__.__name__, str(e)))
+            self.redirect500()
+        
+    def handle(self):
+        logging.info('[GForumThreadHandler.handle]')
+        thread_id = self.extractThreadId()
+        data = dao.getThreadAndMessages(thread_id)
+        thread   = data['thread']
+        messages = data['messages']
+
+        template_values = self.getDefaultTemplateData()
+        template_values['thread']   = thread
+        template_values['forum']    = thread.forum
+        template_values['messages'] = messages
+        
+        self.renderTemplate('thread.html', template_values)
+        dao.incrementThreadViews(thread)     
+        
+    def extractThreadId(self):
+        lookup_string = '%s/t/' % gforum_root
+        idx1 = self.request.url.find(lookup_string)+len(lookup_string)
+        idx2 = self.request.url.find('/',idx1)
+        thread_id = self.request.url[idx1:idx2]
+        logging.info('[extractThreadId] thread_id=\'%s\'' % thread_id)
+        return thread_id           
 
 class GForumImageHandler(webapp.RequestHandler):
     def get(self):

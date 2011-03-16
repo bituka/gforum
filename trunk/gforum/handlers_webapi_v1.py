@@ -92,3 +92,26 @@ class GForumCreateThreadApiHandler(webapp.RequestHandler):
         thread = dao.createNewThread(forum_key, thread_title, message_text, user)
         util.writeApiResponse(self.response, 'ok', 'ok', 'null')
           
+class GForumPostMessageApiHandler(webapp.RequestHandler):
+    def post(self):
+        try:
+            user = sessions.getAuthorizedUser(self.request, self.response)
+            if user:
+                self.handle(user)
+            else:
+                util.writeApiResponse(response, 'fail', 'Only authorized users are allowed to post messages', 'null')
+        except ValueError, e:
+            util.writeApiResponse(self.response, 'fail', str(e), 'null')
+        except Exception, e:
+            logging.error('[GForumPostMessageApiHandler.post] error: %s' % e)
+            util.writeApiResponse(self.response, 'fail', 'Error occured', 'null')                
+
+    def handle(self, user):
+        logging.info('[GForumPostMessageApiHandler.handle]')
+        thread_key   = self.request.get('thread_key')
+        message_text = self.request.get('message_text')
+        logging.info('[GForumPostMessageApiHandler.handle] thread_key=\'%s\''   % thread_key)
+        logging.info('[GForumPostMessageApiHandler.handle] message_text=\'%s\'' % message_text)
+        thread = dao.createNewMessage(thread_key, message_text, user)
+        util.writeApiResponse(self.response, 'ok', 'ok', 'null')          
+     

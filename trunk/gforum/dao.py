@@ -260,7 +260,55 @@ def addThreadAndMessageToForum(forum, thread, message):
     forum.last_message = message
     forum.put()
     
+def addMessageToForum(forum, message):
+    forum.messages_number = forum.messages_number+1
+    forum.last_message = message
+    forum.put()
+        
 def addUserMessage(user, message):
     user.message_list.append(message.key())
     user.messages_number = len(user.message_list)
-    user.put()    
+    user.put()
+    
+def createNewMessage(thread_key_str, message_text, user):
+    # check user
+    if not user:
+        raise ValueError('user')
+
+    # check message
+    message_text = checkMessageText(message_text)
+
+    # check thread
+    thread_key = db.Key(thread_key_str)
+    thread = models.GForumThread.get(thread_key)
+    if not thread:
+        raise ValueError('thread')
+        
+    forum = thread.forum
+    
+    # save all data
+    message = createNewMessageUnchecked(thread, user, message_text)
+    addThreadMessage(thread, message)
+    addMessageToForum(forum, message)
+    addUserMessage(user, message)
+    return message
+    
+def incrementThreadViews(thread):
+    if not thread.views_number:
+        thread.views_number = 0
+    thread.views_number = thread.views_number + 1
+    thread.put()
+    
+def getThreadAndMessages(thread_id):
+    thread_id = int(thread_id)
+    thread = models.GForumThread.get_by_id(thread_id)
+    if not thread:
+        raise ValueError('thread_id')
+    messages = models.GForumMessage.get(thread.message_list)
+    result = {
+        'thread'   : thread,
+        'messages' : messages
+    }
+    return result
+
+
