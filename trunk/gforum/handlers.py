@@ -27,8 +27,10 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 
 from gforum import models
+from gforum import util
 from gforum import settings
 from gforum import sessions
+from gforum import dao
 
 # Log a message each time this module get loaded.
 logging.info('Loading %s, app version = %s', __name__, os.getenv('CURRENT_VERSION_ID'))
@@ -63,26 +65,36 @@ class GForumAbstractHandler(webapp.RequestHandler):
         template_path = 'themes/%s/%s' % (gforum_theme, name)
         path = os.path.join(os.path.dirname(__file__), template_path)
         return path
+        
+    def renderTemplate(self, name, tpl):
+        path = self.getTemplatePath(name)
+        self.response.out.write(template.render(path, tpl).decode('utf-8'))
 
+    def redirectForumHome(self):
+        logging.info('[GForumAbstractHandler.redirectForumHome]')
+        self.redirect(gforum_root)
+        
     def redirect500(self):
         logging.info('[GForumAbstractHandler.redirect500]')
         self.redirect('%s/500.html' % gforum_root)
+        
+    def redirect404(self):
+        logging.info('[GForumAbstractHandler.redirect404]')
+        self.redirect('%s/404.html' % gforum_root)
     
 class GForum403Handler(webapp.RequestHandler):
     def get(self):
         pass
         
-class GForum404Handler(webapp.RequestHandler):
+class GForum404Handler(GForumAbstractHandler):
     def get(self):
-        pass
+        self.renderTemplate('404.html', {})
 
 class GForum500Handler(GForumAbstractHandler):
     def get(self):
-        path = self.getTemplatePath('500.html')
-        self.response.out.write(template.render(path, {}).decode('utf-8'))
+        self.renderTemplate('500.html', {})
 
 class GForumMainHandler(GForumAbstractHandler):
-
     def get(self):
         try: 
             self.handle()
@@ -92,20 +104,50 @@ class GForumMainHandler(GForumAbstractHandler):
 
     def handle(self):
         logging.info('[GForumMainHandler.handle]')
-        forums = models.GForumForum.all().order('name').fetch(limit=1000)
+        forums = dao.getAllForums()
         has_forums = len(forums)>0
 
         template_values = self.getDefaultTemplateData()
         template_values['has_forums'] = has_forums
         template_values['forums']     = forums
 
-        path = self.getTemplatePath('main.html')
-        self.response.out.write(template.render(path, template_values).decode('utf-8'))
+        self.renderTemplate('main.html', template_values)
         
 
-class GForumForumHandler(webapp.RequestHandler):
+class GForumForumHandler(GForumAbstractHandler):
     def get(self):
-        pass
+        try: 
+            self.handle()
+        except Exception, e:
+            logging.error('%s: \'%s\'' % (self.__class__.__name__, str(e)))
+            self.redirect500()
+            
+    def handle(self):
+        logging.info('[GForumForumHandler.handle]')
+        permalink = self.extractForumPermalink()
+        forum = dao.getForumByPermalink(permalink)
+        if not forum:
+            self.redirect404()
+            return
+
+        has_threads = len(forum.thread_list)>0
+        threads = []
+        
+        if len(forum.thread_list)>0:
+            threads = dao.getAllForumThreads(forum)
+
+        template_values = self.getDefaultTemplateData()
+        template_values['has_threads'] = has_threads
+        template_values['forum']    = forum
+        template_values['threads']  = threads
+
+        self.renderTemplate('forum.html', template_values)
+        
+    def extractForumPermalink(self):
+        lookup_string = '%s/f/' % gforum_root
+        permalink = self.request.url[self.request.url.find(lookup_string)+len(lookup_string):]
+        logging.info('[extractForumPermalink] permalink=\'%s\'' % permalink)
+        return permalink
 
 class GForumThreadHandler(webapp.RequestHandler):
     def get(self):
@@ -141,20 +183,57 @@ class GForumSitemapHandler(webapp.RequestHandler):
     def get(self):
         pass
 
-class GForumLoginzaLoginHandler(webapp.RequestHandler):
+class GForumLoginzaLoginHandler(GForumAbstractHandler):
     def get(self):
-        pass
+        self.redirectForumHome()
+
+    def post(self):
+        try: 
+            loginza_token = self.request.get('token')
+            logging.info('[GForumLoginzaLoginHandler.post] loginza_token = \'%s\'' % loginza_token)
+            loginza_url = 'http://loginza.ru/api/authinfo?token=%s' % loginza_token
+            result = util.fetchUrl(loginza_url)
+            if result.status_code == 200:
+                logging.info('[GForumLoginzaLoginHandler.post] result.content=\'%s\'' % result.content)
+                self.handleLoginzaResponse(result.content)
+            else:
+                logging.error('[GForumLoginzaLoginHandler.post] cannot fetch data from loginza!')
+                self.redirectForumHome()
+        except:
+            logging.error('[GForumLoginzaLoginHandler.post] Error occured: cannot fetch data from loginza!')
+            if settings.GFORUM_USE_VKONTAKTE_EMULATOR:
+                logging.error('[GForumLoginzaLoginHandler.post] Running loginza emulator...')
+                content = '%s%s%s%s' % ('{"identity":"http:\/\/vkontakte.ru\/id27610","provider":"http:\/\/vkontakte.ru\/","uid":27610,', 
+                  '"name":{"first_name":"\u0418\u0432\u0430\u043d","last_name":"\u0420\u044b\u043d\u0434\u0438\u043d"},', 
+                  '"nickname":"","gender":"M","dob":"1983-03-18","address":{"home":{"country":"1"}},',
+                  '"photo":"http:\/\/cs408.vkontakte.ru\/u27610\/e_8e8b9f02.jpg"}')
+                self.handleLoginzaResponse(content)
+        self.redirectForumHome()
+
+    def handleLoginzaResponse(self, content):
+        logging.info('[GForumLoginzaLoginHandler.handleLoginzaResponse]')
+        try: 
+            obj = util.loadJson(content)
+            provider = obj['provider']
+            identity = obj['identity']
+            logging.info('[GForumLoginzaLoginHandler.handleLoginzaResponse] provider = \'%s\'' % provider)
+            logging.info('[GForumLoginzaLoginHandler.handleLoginzaResponse] identity = \'%s\'' % identity)
+            user = dao.searchUser(identity)
+            if user:
+                logging.info('[GForumLoginzaLoginHandler.handleLoginzaResponse] User already registered on the forum! User identity: \'%s\'' % user.auth_provider_identity)
+            else:
+                logging.info('[GForumLoginzaLoginHandler.handleLoginzaResponse] New user comes. Register user on the forum! User identity: \'%s\'' % identity)
+                user = dao.createNewUser(obj, content)
+            # put user into session here...
+            sessions.putUserIntoCurrentSession(user, self.request, self.response)
+        except Exception, e:
+            logging.error('Exception: "%s"' % e)
+            logging.error('Error occured when handling JSON from Loginza')
+            logging.error('content=\'%s\'' % content)
+        self.redirectForumHome()
+
 
 class GForumLoginzaLogoutHandler(webapp.RequestHandler):
     def get(self):
         pass
-
-class GForumApiv1Handler(webapp.RequestHandler):
-    def get(self):
-        pass
-
-class GForumAdminHandler(webapp.RequestHandler):
-    def get(self):
-        pass
-
-        
+     

@@ -2,29 +2,28 @@
 #
 
 ##############################################################################
-# General settings
+############################ General settings ################################
 ##############################################################################
 
 GFORUM_DEBUG = True
+
+GFORUM_USE_VKONTAKTE_EMULATOR = True
+
 # path to the forum
 # should be the same as in gforum.yaml URL handlers
 GFORUM_FORUM_PATH   = '/forum'
 
-#
-#
-GFORUM_SITE_ADDRESS = 'http://localhost:9091'
-
-# threads per page default value
-GFORUM_THREADS_PER_PAGE  = 20
-
-# messages per page default value
-GFORUM_MESSAGES_PER_PAGE = 20
-
 # gforum theme name
 GFORUM_THEME = 'default'
 
+### following not used now:
+# threads per page default value
+#GFORUM_THREADS_PER_PAGE  = 20
+# messages per page default value
+#GFORUM_MESSAGES_PER_PAGE = 20
+
 ##############################################################################
-# Session settings
+################################ Session settings ############################
 ##############################################################################
 
 # secret key which is used in generation of session key

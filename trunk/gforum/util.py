@@ -1,17 +1,37 @@
 ﻿#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+# Copyright 2011 Ivan Ryndin
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+
+__author__ = 'Ivan P. Ryndin'
+
 import random          
 import os
 import re
 import sys
 import logging
-import string
-import math
 import datetime
 from hashlib import md5
 
 from google.appengine.ext.webapp import template
+from google.appengine.api import urlfetch
+
+from django.utils import simplejson
 
 import gforum.settings
 
@@ -152,18 +172,20 @@ def genRandomSymbols(len):
             result = result + random.choice(passwordSymbols)
         return result
 
-def normalizeMessageText(txt):
-    txt1 = txt.replace('\n','<br/>').replace('\'', '&quot;').replace('"', '&quot;')
-    return txt1
-
-def normText(txt):
-    if not txt:
-        txt = ''
-    txt = txt.strip()
-    if len(txt)==0:
+def normTextValue(v):
+    if not v:
+        v = ''
+    v = v.strip()
+    if len(v)==0:
         return None
     else:
-        return txt
+        return v
+
+def normHtmlValue(v):
+    v = normTextValue(v)    
+    if v:
+        v = v.replace('\n','<br/>').replace('\'', '&quot;').replace('"', '&quot;')
+    return v
 
 def getImageContentTypeByUrl(url):
     url = url.lower()
@@ -185,17 +207,11 @@ def validateEmail(email):
     else:
         return True
         
-def getDefaultTemplateData(request, response, gforum_root):
-    import gforum.users
-    user = gforum.users.getAuthorizedUser(request, response)
-    user_authorized = True if user else False
-    #if user:
-    #    user.avatar_url = gforum.users.getAvatarUrl(user, gforum_root)
+def fetchUrl(url):
+    return urlfetch.fetch(url)
     
-    template_values = {
-        'user_authorized' : user_authorized,
-        'user'            : user,
-        'forumpath'       : gforum_root,
-        'host'            : '%s://%s' % (request.scheme, request.host)
-    }
-    return template_values
+def loadJson(strJson):
+    return simplejson.loads(strJson)    
+
+def generateImageUrl(image):
+    return 
