@@ -29,6 +29,10 @@ from gforum import util
 # Log a message each time this module get loaded.
 logging.info('Loading %s, app version = %s', __name__, os.getenv('CURRENT_VERSION_ID'))
 
+def getUser(user_key_str):
+    key = db.Key(user_key_str)
+    return models.GForumUser.get(key)
+    
 def renderJsonTemplate(name, tpl):
     path = os.path.join(os.path.dirname(__file__), 'json/%s' % name)
     robj = template.render(path, tpl)

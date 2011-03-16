@@ -198,10 +198,30 @@ class GForumImageHandler(webapp.RequestHandler):
         else:
             pass
 
-class GForumProfileHandler(webapp.RequestHandler):
+class GForumProfileHandler(GForumAbstractHandler):
     def get(self):
-        pass
+        try: 
+            self.handle()
+        except Exception, e:
+            logging.error('%s: \'%s\'' % (self.__class__.__name__, str(e)))
+            self.redirect500()
 
+    def handle(self):
+        user_key_str = self.request.url[self.request.url.rfind('/')+1:]
+        profile_user    = dao.getUser(user_key_str)
+        if not profile_user:
+            self.redirect404()
+        else:
+            template_values = self.getDefaultTemplateData()
+            authorized_user = template_values['user']
+            is_other_user = True
+            if authorized_user and profile_user.key() == authorized_user.key():
+                is_other_user = False
+        
+            template_values['is_other_user'] = is_other_user
+            template_values['profile_user']  = profile_user
+            self.renderTemplate('profile.html', template_values)
+        
 class GForumSitemapHandler(webapp.RequestHandler):
     def get(self):
         pass
