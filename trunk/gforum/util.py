@@ -149,6 +149,10 @@ def translit(theString):
 def htc(m):
     return chr(int(m.group(1),16))
 
+def makeCorrectPermalink(txt):
+    txt = translit(txt)
+    return re.sub('[\W]+', '', txt).lower()
+    
 # taken from there: http://jaytaylor.com/blog/2010/04/25/urldecode-for-python-one-liner/
 def urldecode(url):
     rex = re.compile('%([0-9a-hA-H][0-9a-hA-H])',re.M)

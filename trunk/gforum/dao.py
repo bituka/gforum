@@ -57,10 +57,8 @@ def createNewForum(name, permalink, description):
 
     permalink = util.normTextValue(permalink)
     if not permalink:
-        permalink = util.translit(name)
-    permalink = permalink.lower()
-    if permalink.find('/')>=0:
-        raise ValueError('forum_permalink')
+        permalink = name
+    permalink = util.makeCorrectPermalink(permalink)
     description = util.normHtmlValue(description)
     forum = getForumByPermalink(permalink)
     if forum:
@@ -259,7 +257,7 @@ def createNewEmptyThread(forum, title, user):
     title = checkThreadTitle(title)
     thread = models.GForumThread()
     thread.title = title
-    thread.permalink   = util.translit(title)
+    thread.permalink   = util.makeCorrectPermalink(title)
     thread.messages_number = 0
     thread.views_number    = 1
     thread.message_list    = []
