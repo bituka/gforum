@@ -97,14 +97,14 @@ def createNewUser(obj, objStr):
     provider = obj['provider'] 
     
     user = models.GForumUser()
-    user.auth_provider = provider
     user.auth_provider_identity = obj['identity']
     user.messages_number = 0
     user.message_list = []
     
     if provider.find('vkontakte.ru')>-1:
-        data = createNewVKontakteData(obj, objStr)
-        user.vkontakte_data = data 
+        user.auth_provider = 'vkontakte'
+        data = createNewVkontakteData(obj, objStr)
+        user.auth_provider_key = str(data.key())
         user.first_name     = data.first_name
         user.last_name      = data.last_name
         user.avatar_url     = data.avatar_url
@@ -112,29 +112,55 @@ def createNewUser(obj, objStr):
         if len(user.nick_name)==0:
             user.nick_name = '%s %s' % (user.first_name, user.last_name)
     elif provider.find('google.com')>-1:
+        user.auth_provider = 'google'
         data = createNewGoogleData(obj, objStr)
-        user.google_data = data
+        user.auth_provider_key = str(data.key())
         user.first_name  = data.first_name
         user.last_name   = data.last_name
         user.nick_name   = data.full_name
         user.email       = data.email
     elif provider.find('twitter.com')>-1:
+        user.auth_provider = 'twitter'
         data = createNewTwitterData(obj, objStr)
-        user.twitter_data= data
+        user.auth_provider_key = str(data.key())        
         user.nick_name   = data.nick_name
         user.avatar_url  = data.avatar_url
+    elif provider.find('facebook.com')>-1:
+        user.auth_provider = 'facebook'
+        data = createNewFacebookData(obj, objStr)
+        user.auth_provider_key = str(data.key())
+        user.first_name  = data.first_name
+        user.last_name   = data.last_name
+        user.nick_name   = data.full_name.strip()
+        user.avatar_url  = data.avatar_url
+        user.email       = data.email        
+
     user.nick_name_lower = user.nick_name.strip().lower()
-    
     # seems that we don't need following,
     # because link to twitter, vkontakte avatars are permanent
     #if user.avatar_url:
     #    image = fetchAndSaveAvatar(user.avatar_url)
     #    user.avatar_url = util.generateImageUrl(image)
-    
     user.put()
     return user
 
-def createNewVKontakteData(obj, objStr):
+def createNewFacebookData(obj, objStr):
+    data = models.GForumFacebookData()
+    data.loginza_response = objStr
+    data.identity  = obj['identity']
+    data.provider  = obj['provider']
+    data.uid       = str(obj['uid'])    
+    data.first_name= obj['name']['first_name']
+    data.last_name = obj['name']['last_name']
+    data.full_name = obj['name']['full_name']    
+    data.gender    = obj['gender']
+    data.dob       = obj['dob']
+    data.email     = obj['email']
+    data.avatar_url= obj['photo']
+    data.put()
+    return data
+    
+def createNewVkontakteData(obj, objStr):
     data = models.GForumVkontakteData()
     data.loginza_response = objStr
     data.identity  = obj['identity']
@@ -148,7 +174,6 @@ def createNewVKontakteData(obj, objStr):
     data.country   = obj['address']['home']['country']
     data.avatar_url= obj['photo']
     data.put()
-    
     return data
 
 def createNewGoogleData(obj, objStr):
