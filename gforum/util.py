@@ -149,6 +149,7 @@ def translit(theString):
 def htc(m):
     return chr(int(m.group(1),16))
 
+# see http://stackoverflow.com/questions/1276764/stripping-everything-but-alphanumeric-chars-from-a-string-in-python
 def makeCorrectPermalink(txt):
     txt = translit(txt)
     return re.sub('[\W]+', '', txt).lower()
