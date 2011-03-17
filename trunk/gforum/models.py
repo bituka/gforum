@@ -19,15 +19,23 @@
 # all copies or substantial portions of the Software.
 
 __author__ = 'Ivan P. Ryndin'
+
 from google.appengine.ext import db
 
-AUTH_PROVIDER_GOOGLE   = 1
-AUTH_PROVIDER_FACEBOOK = 2
-AUTH_PROVIDER_TWITTER  = 3
-AUTH_PROVIDER_VKONTAKTE= 4
-AUTH_PROVIDER_YANDEX   = 5
-AUTH_PROVIDER_MAILRU   = 6
-AUTH_PROVIDER_OPENID   = 7
+class GForumFacebookData(db.Model):
+    loginza_response = db.StringProperty()
+    create_date = db.DateTimeProperty(auto_now_add=True)
+    update_date = db.DateTimeProperty(auto_now=True)
+    identity  = db.StringProperty()
+    provider  = db.StringProperty()
+    uid       = db.StringProperty()
+    first_name= db.StringProperty()
+    last_name = db.StringProperty()
+    full_name = db.StringProperty()
+    gender    = db.StringProperty()
+    dob       = db.StringProperty()
+    email     = db.StringProperty()
+    avatar_url= db.StringProperty()
 
 class GForumVkontakteData(db.Model):
     loginza_response = db.StringProperty()
@@ -93,9 +101,7 @@ class GForumUser(db.Model):
     signature = db.StringProperty()
     auth_provider = db.StringProperty()
     auth_provider_identity = db.StringProperty()
-    vkontakte_data   = db.ReferenceProperty(GForumVkontakteData)
-    google_data      = db.ReferenceProperty(GForumGoogleData)
-    twitter_data     = db.ReferenceProperty(GForumTwitterData)
+    auth_provider_key = db.StringProperty()
     
 class GForumMessage(db.Model):
     text = db.TextProperty()
