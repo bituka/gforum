@@ -298,9 +298,12 @@ def createNewMessage(thread_key_str, message_text, user):
     return message
     
 def incrementThreadViews(thread):
+    logging.info('[dao.incrementThreadViews]')
     if not thread.views_number:
         thread.views_number = 0
+    logging.info('[dao.incrementThreadViews] OLD thread.views_number=%d' % thread.views_number)
     thread.views_number = thread.views_number + 1
+    logging.info('[dao.incrementThreadViews] NEW thread.views_number=%d' % thread.views_number)
     thread.put()
     
 def getThreadAndMessages(thread_id):
