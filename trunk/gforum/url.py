@@ -54,10 +54,11 @@ ROUTES = [
 ]
 
 def main():
-    path = timings.start_run()
+    #path = timings.start_run()
     application = webapp.WSGIApplication(ROUTES, debug=settings.GFORUM_DEBUG)
+    logging.info('run WSGI app +++++')
     run_wsgi_app(application)
-    timings.stop_run(path)
+    #timings.stop_run(path)
     
 if __name__ == '__main__':
   main()

@@ -116,6 +116,7 @@ class GForumMainHandler(GForumAbstractHandler):
 
 class GForumForumHandler(GForumAbstractHandler):
     def get(self):
+        logging.info('[GForumForumHandler.get] ========================================== ')
         try: 
             self.handle()
         except Exception, e:
@@ -130,11 +131,18 @@ class GForumForumHandler(GForumAbstractHandler):
             self.redirect404()
             return
 
+        logging.info('[GForumForumHandler.handle] 1')
         has_threads = len(forum.thread_list)>0
         threads = []
         
         if len(forum.thread_list)>0:
             threads = dao.getAllForumThreads(forum)
+            
+        for t in threads:
+            logging.info('[GForumForumHandler.handle] t.id = %d' % t.key().id())
+            logging.info('[GForumForumHandler.handle] t.views_number = %d' % t.views_number)
+            if t.key().id() == 7:
+                logging.info('[GForumForumHandler.handle] thread.views_number=%d' % t.views_number)
 
         template_values = self.getDefaultTemplateData()
         template_values['has_threads'] = has_threads
@@ -163,6 +171,8 @@ class GForumThreadHandler(GForumAbstractHandler):
         data = dao.getThreadAndMessages(thread_id)
         thread   = data['thread']
         messages = data['messages']
+        
+        logging.info('[GForumThreadHandler.handle] thread.views_number=%d' % thread.views_number)
 
         template_values = self.getDefaultTemplateData()
         template_values['thread']   = thread

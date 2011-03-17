@@ -5,7 +5,7 @@
 ############################ General settings ################################
 ##############################################################################
 
-GFORUM_DEBUG = True
+GFORUM_DEBUG = False
 
 GFORUM_USE_VKONTAKTE_EMULATOR = False
 
