@@ -167,13 +167,15 @@ class GForumThreadHandler(GForumAbstractHandler):
         
     def handle(self):
         logging.info('[GForumThreadHandler.handle]')
-        thread_id = self.extractThreadId()
+        thread_id, thread_permalink = self.extractThreadData()
         data = dao.getThreadAndMessages(thread_id)
         thread   = data['thread']
         messages = data['messages']
         
-        logging.info('[GForumThreadHandler.handle] thread.views_number=%d' % thread.views_number)
-
+        if thread_permalink != thread.permalink:
+            self.redirect404()
+            return
+        
         template_values = self.getDefaultTemplateData()
         template_values['thread']   = thread
         template_values['forum']    = thread.forum
@@ -182,13 +184,15 @@ class GForumThreadHandler(GForumAbstractHandler):
         self.renderTemplate('thread.html', template_values)
         dao.incrementThreadViews(thread)     
         
-    def extractThreadId(self):
+    def extractThreadData(self):
         lookup_string = '%s/t/' % gforum_root
         idx1 = self.request.url.find(lookup_string)+len(lookup_string)
         idx2 = self.request.url.find('/',idx1)
         thread_id = self.request.url[idx1:idx2]
-        logging.info('[extractThreadId] thread_id=\'%s\'' % thread_id)
-        return thread_id           
+        thread_permalink = self.request.url[idx2+1:]
+        logging.info('[extractThreadData] thread_id=\'%s\'' % thread_id)
+        logging.info('[extractThreadData] thread_permalink=\'%s\'' % thread_permalink)
+        return (thread_id, thread_permalink)
 
 class GForumImageHandler(webapp.RequestHandler):
     def get(self):
