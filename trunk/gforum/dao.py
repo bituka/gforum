@@ -131,7 +131,12 @@ def createNewUser(obj, objStr):
         user.last_name   = data.last_name
         user.nick_name   = data.full_name.strip()
         user.avatar_url  = data.avatar_url
-        user.email       = data.email        
+        user.email       = data.email     
+    elif provider.find('myopenid.com')>-1:
+        user.auth_provider = 'myopenid'
+        data = createNewMyopenidData(obj, objStr)
+        user.auth_provider_key = str(data.key())
+        user.nick_name   = data.nick_name
 
     user.nick_name_lower = user.nick_name.strip().lower()
     # seems that we don't need following,
@@ -142,6 +147,20 @@ def createNewUser(obj, objStr):
     user.put()
     return user
 
+def createNewMyopenidData(obj, objStr):
+    data = models.GForumMyopenidData()
+    data.loginza_response = objStr
+    data.identity  = obj['identity']
+    data.provider  = obj['provider']
+    data.full_name = obj['name']['full_name']
+    data.nick_name = obj['nickname']
+    data.gender    = obj['gender']
+    data.language  = obj['language']
+    data.dob       = obj['dob']
+    data.country   = obj['address']['home']['country']
+    data.put()
+    return data
+    
 def createNewFacebookData(obj, objStr):
     data = models.GForumFacebookData()
     data.loginza_response = objStr
