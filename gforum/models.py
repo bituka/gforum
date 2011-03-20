@@ -22,6 +22,19 @@ __author__ = 'Ivan P. Ryndin'
 
 from google.appengine.ext import db
 
+class GForumMyopenidData(db.Model):
+    loginza_response = db.StringProperty()
+    create_date = db.DateTimeProperty(auto_now_add=True)
+    update_date = db.DateTimeProperty(auto_now=True)
+    identity    = db.StringProperty()
+    provider    = db.StringProperty()
+    full_name   = db.StringProperty()
+    nick_name   = db.StringProperty()
+    language    = db.StringProperty()
+    country     = db.StringProperty()
+    gender      = db.StringProperty()
+    dob         = db.StringProperty()
+
 class GForumFacebookData(db.Model):
     loginza_response = db.StringProperty()
     create_date = db.DateTimeProperty(auto_now_add=True)
