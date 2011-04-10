@@ -57,13 +57,17 @@ class GForumCreateForumApiHandler(webapp.RequestHandler):
     def handle(self):
         logging.info('[GForumCreateForumApiHandler.handle]')
 
+        forum_id          = self.request.get('forum_id')
         forum_name        = self.request.get('forum_name')
         forum_permalink   = self.request.get('forum_permalink').lower()
         forum_description = self.request.get('forum_description')
         logging.info('[[GForumCreateForumApiHandler.handle]] forum_name=%s' % forum_name)
         logging.info('[[GForumCreateForumApiHandler.handle]] forum_permalink=%s' % forum_permalink)
         logging.info('[[GForumCreateForumApiHandler.handle]] forum_description=%s' % forum_description)
-        forum          = dao.createNewForum(forum_name, forum_permalink, forum_description)
+        if forum_id and len(forum_id.strip())>0:
+            forum = dao.updateForum(forum_id, forum_name, forum_permalink, forum_description)
+        else: 
+            forum = dao.createNewForum(forum_name, forum_permalink, forum_description)
         rendered_forum = dao.renderForumJson(forum)
         util.writeApiResponse(self.response, 'ok', 'ok', rendered_forum)
 

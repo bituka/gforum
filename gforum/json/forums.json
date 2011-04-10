@@ -5,10 +5,11 @@
   "id"  : "{{forum.key.id}}",
   "name": "{{forum.name}}",
   "permalink": "{{forum.permalink}}",
-  "description": "{{forum.description}}",
+  "description": "{% if forum.description %}{{forum.description}}{% endif %}",
   "create_date": "{{forum.create_date}}",
   "messages_number":"{{forum.messages_number}}",
-  "threads_number": "{{forum.threads_number}}"
+  "threads_number": "{{forum.threads_number}}",
+  "last_post_date": "{% if forum.last_message %}{{forum.last_message.create_date}}{% endif %}"
 }{% if not forloop.last %},{% endif %}
 {% endfor %}
 ]
