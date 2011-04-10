@@ -1,6 +1,7 @@
 Ext.ns('org.gforum.i18n','org.gforum.admin', 'org.gforum.admin.renderer');
 
 org.gforum.admin.forumPath = '';
+org.gforum.admin.logoutUrl = '';
 
 org.gforum.admin.hideGlobalLoadingMask = function() {
     Ext.get('loading').remove();
@@ -38,11 +39,9 @@ org.gforum.admin.buildAdminScreen = function() {
     });
     
     var mainPanel = new Ext.TabPanel({
-        renderTo: 'mainPanelDiv',
+        //renderTo: 'mainPanelDiv',
         activeTab: 0,
         flex: 1,
-        width:window.innerWidth-20,
-        height: window.innerHeight-100,
         frame: false,
         plain:true,
         defaults: {autoScroll: true},
@@ -60,7 +59,8 @@ org.gforum.admin.buildAdminScreen = function() {
                         header: 'Name', 
                         width: 200, 
                         sortable: true, 
-                        dataIndex: 'name' 
+                        dataIndex: 'name',
+                        renderer: org.gforum.admin.renderer.forumName
                     },{ 
                         header: 'Permalink', 
                         width: 400, 
@@ -95,12 +95,6 @@ org.gforum.admin.buildAdminScreen = function() {
                         renderer: org.gforum.admin.renderer.editForum
                     }],
                     loadMask: { msg: 'Loading' },
-                    listeners: {
-                        rowdblclick: function(theGrid,theRowIndex,theEventObject) {
-                            //var rec = applicationsGrid_store.getAt(theRowIndex);
-                            //applicationFilesGrid_store.loadApplicationFiles(rec.get('id'));
-                        }
-                    },
                     tbar: new Ext.Toolbar({
                         defaults:{ margins:'5 5 5 5' },
                         items:[{
@@ -139,10 +133,33 @@ org.gforum.admin.buildAdminScreen = function() {
             }
         ]      
     });
+    
+    var topPanelHtml = [
+        String.format('<a href="{0}">Logout</a>', org.gforum.admin.logoutUrl),
+        '</p>',
+        '<h1>GForum Admin Interface</h2>'
+    ];
+    
+    var viewport = new Ext.Viewport({
+        layout: 'vbox',
+        layoutConfig: {
+            align : 'stretch',
+            pack  : 'start',
+        },        
+        items: [{
+            xtype: 'container',
+            height: 50,
+            html: topPanelHtml.join(''),
+            border: false,
+            margins: '0 0 5 0'
+        }, mainPanel
+        ]
+    });
+    
+    viewport.doLayout();
 }
 
 org.gforum.admin.showCreateUpdateForumWindow = function(data) {
-    console.log('org.gforum.admin.showCreateUpdateForumWindow ', data);
     if (!org.gforum.admin.createUpdateForumWindow) {
         org.gforum.admin.createUpdateForumWindow = new Ext.Window({
             resizable: false,
@@ -150,6 +167,7 @@ org.gforum.admin.showCreateUpdateForumWindow = function(data) {
             height:210,
             closeAction:'hide',
             plain: true,
+            modal: true,
             layout: 'fit',
 
             items: new Ext.form.FormPanel({
@@ -161,8 +179,15 @@ org.gforum.admin.showCreateUpdateForumWindow = function(data) {
                     xtype: 'textfield',
                     id: 'createForumWnd-name',
                     width: 270,
+                    enableKeyEvents: true,
                     fieldLabel: 'Forum title',
-                    allowBlank: false
+                    allowBlank: false,
+                    listeners: {
+                        keyup: function(theTextfield, theEvent) {
+                            var value = theTextfield.getValue();
+                            Ext.getCmp('createForumWnd-permalink').setValue(org.gforum.admin.translit(value));
+                        }
+                    }
                 },{
                     xtype: 'textfield',
                     id: 'createForumWnd-permalink',
@@ -237,8 +262,8 @@ org.gforum.admin.showCreateUpdateForumWindow = function(data) {
         Ext.getCmp('createForumWnd-id').setValue(data.id);
     } else {
         org.gforum.admin.createUpdateForumWindow.setTitle('Create forum');
-        Ext.getCmp('createForumWnd-name').setValue('');
-        Ext.getCmp('createForumWnd-permalink').setValue('');
+        Ext.getCmp('createForumWnd-name').setRawValue('');
+        Ext.getCmp('createForumWnd-permalink').setRawValue('');
         Ext.getCmp('createForumWnd-description').setValue('');
         Ext.getCmp('createForumWnd-id').setValue('');
     }
@@ -247,7 +272,6 @@ org.gforum.admin.showCreateUpdateForumWindow = function(data) {
 }
 
 org.gforum.admin.sendCreateUpdateForumCommand = function(data, callbackFn) {
-    console.log('org.gforum.admin.sendCreateUpdateForumCommand',data);
     Ext.Ajax.request({
         url: String.format('{0}/api/v1/admin/create_forum', org.gforum.admin.forumPath),
         params: {
@@ -359,6 +383,15 @@ org.gforum.admin.renderer.editForum = function(value, metaData, record, rowIndex
     var a = [
         '<a href="#" onClick="org.gforum.admin.onEditForumHandler('+record.get('id')+'); return false;">',
         'Edit',
+        '</a>'
+    ];
+    return a.join('');
+}
+
+org.gforum.admin.renderer.forumName = function(value, metaData, record, rowIndex, colIndex, store) {
+    var a = [
+        String.format('<a href="{0}/f/{1}" target="_blank">', org.gforum.admin.forumPath, record.get('permalink')),
+        value,
         '</a>'
     ];
     return a.join('');

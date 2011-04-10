@@ -19,9 +19,10 @@ gforum.createThread = function(opt) {
             message_text:   opt.message_text
         },
         success: function(data, textStatus, jqXHR) {
-            var resp = jQuery.parseJSON(data);
+            //console.log('[gforum.createThread]', data);
+            //var resp = jQuery.parseJSON(data);
             if (opt.callback) {
-                opt.callback.call(null,resp);
+                opt.callback.call(this,data);
             }            
         }
     });    
@@ -45,9 +46,9 @@ gforum.postThreadMessage = function(opt) {
             message_text: opt.message_text
         },
         success: function(data, textStatus, jqXHR) {
-            var resp = jQuery.parseJSON(data);
+            //var resp = jQuery.parseJSON(data);
             if (opt.callback) {
-                opt.callback.call(null,resp);
+                opt.callback.call(this,data);
             }
         }
     });

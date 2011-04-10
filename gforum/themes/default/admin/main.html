@@ -64,11 +64,12 @@
 </div>
 <!-- GLOBAL LOADING MASK END -->
 
+<!--
 <p>
 <a href="{{logout_url}}">Logout</a>
 </p>
 <h1>GForum Admin Interface</h2>
-
+-->
 <div id="mainPanelDiv"></div>
 
 
@@ -89,7 +90,10 @@
 
 <script src="/gforumstatic/themes/default/js/admin.js"></script>
 
-<script type="text/javascript">org.gforum.admin.forumPath = '{{forumpath}}';</script>
+<script type="text/javascript">
+    org.gforum.admin.forumPath = '{{forumpath}}';
+    org.gforum.admin.logoutUrl = '{{logout_url}}';
+</script>
 
 
 
