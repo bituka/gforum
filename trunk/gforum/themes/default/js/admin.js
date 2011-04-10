@@ -268,6 +268,7 @@ org.gforum.admin.showCreateUpdateForumWindow = function(data) {
         Ext.getCmp('createForumWnd-id').setValue('');
     }
 
+    org.gforum.admin.createUpdateForumWindow.center();
     org.gforum.admin.createUpdateForumWindow.show();
 }
 
