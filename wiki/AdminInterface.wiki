@@ -14,3 +14,9 @@ and other...
 Here one can administer forums:
  * create new forums
  * edit existing ones (user can edit forum title,permalink and description)
+
+Here is a screenshot of forums tab: 
+
+http://img228.imageshack.us/img228/7334/777777777777777777.png
+
+[http://img228.imageshack.us/img228/7334/777777777777777777.png link]
