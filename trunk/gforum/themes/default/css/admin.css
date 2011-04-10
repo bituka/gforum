@@ -16,3 +16,7 @@
 .cancelIcon16 {
     background-image: url(../images/icons/cancel.png);
 }
+
+#tab-forums {
+    overflow: hidden !important;
+}
