@@ -73,11 +73,17 @@ def createNewForum(name, permalink, description):
     forum.put()
     return forum
     
-def renderForumJson(forum):
-    tpl = {
-        'forum': forum
-    }
-    return renderJsonTemplate('forum.json', tpl)
+def renderForumJson(f):
+    if type(f) == type([]):
+        tpl = {
+            'forums': f
+        }
+        return renderJsonTemplate('forums.json', tpl)
+    else:
+        tpl = {
+            'forum': f
+        }
+        return renderJsonTemplate('forum.json', tpl)
 
 def getAllForumThreads(forum):
     threads = models.GForumThread.get(forum.thread_list)

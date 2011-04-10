@@ -67,6 +67,25 @@ class GForumCreateForumApiHandler(webapp.RequestHandler):
         rendered_forum = dao.renderForumJson(forum)
         util.writeApiResponse(self.response, 'ok', 'ok', rendered_forum)
 
+class GForumListForumsApiHandler(webapp.RequestHandler):
+    def get(self):
+        try:
+            if not users.is_current_user_admin():
+                util.writeApiResponse(self.response, 'fail', 'you are not admin', '')
+            else:
+                self.handle()
+        except ValueError, e:
+            util.writeApiResponse(self.response, 'fail', str(e), 'null')
+        except:
+            util.writeApiResponse(self.response, 'fail', 'Error occured', 'null')
+
+    def handle(self):
+        logging.info('[GForumListForumsApiHandler.handle]')
+        
+        forums = dao.getAllForums()
+        rendered_forums = dao.renderForumJson(forums)
+        util.writeApiResponse(self.response, 'ok', 'ok', rendered_forums)
+        
 class GForumCreateThreadApiHandler(webapp.RequestHandler):
     def post(self):
         try:

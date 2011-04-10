@@ -38,6 +38,7 @@ import gforum.settings
 def writeApiResponse(response,status,errorMsg,data):
     logging.info('[UtilModule.writeResponse]')
     response.set_status(200)
+    response.headers['Content-Type'] = 'application/json'
     if not data:
         data = '""'
     response_tpl_val = {

@@ -1,0 +1,14 @@
+[
+{% for forum in forums %}
+{
+  "key" : "{{forum.key}}",
+  "id"  : "{{forum.key.id}}",
+  "name": "{{forum.name}}",
+  "permalink": "{{forum.permalink}}",
+  "description": "{{forum.description}}",
+  "create_date": "{{forum.create_date}}",
+  "messages_number":"{{forum.messages_number}}",
+  "threads_number": "{{forum.threads_number}}"
+}{% if not forloop.last %},{% endif %}
+{% endfor %}
+]
