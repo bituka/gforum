@@ -12,4 +12,6 @@ handlers:
 - url: /gforumstatic/themes/default/js
   static_dir: gforum/themes/default/js
 
+- url: /gforumstatic/themes/default/images
+  static_dir: gforum/themes/default/images
 

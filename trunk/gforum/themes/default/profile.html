@@ -134,7 +134,7 @@
   </tr>
   <tr>
     <td style="font-weight: bold;">Where from:</td>
-    <td>{{profile_user.where_from}}</td>
+    <td>{% if profile_user.where_from %}{{profile_user.where_from}}{% endif %}</td>
   </tr>
   <tr>
     <td style="font-weight: bold;">Messages number:</td>

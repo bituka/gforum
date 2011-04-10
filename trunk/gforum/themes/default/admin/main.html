@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
-<title>Gforum forums</title>
+<title>Gforum Admin Console</title>
     
 <!--
 <link rel="stylesheet" href="gfthemes/default/css/base.css" type="text/css" media="screen">
@@ -18,214 +18,82 @@
     visibility: visible;
 }
 </style>
+
+<style type="text/css">
+    #loading-mask{
+        background-color:white;
+        height:100%;
+        position:absolute;
+        left:0;
+        top:0;
+        width:100%;
+        z-index:20000;
+    }
+    #loading{
+        height:auto;
+        position:absolute;
+        left:45%;
+        top:40%;
+        padding:2px;
+        z-index:20001;
+    }
+    #loading a {
+        color:#225588;
+    }
+    #loading .loading-indicator{
+        background:white;
+        color:#444;
+        font:bold 13px Helvetica, Arial, sans-serif;
+        height:auto;
+        margin:0;
+        padding:10px;
+    }
+    #loading-msg {
+        font-size: 10px;
+        font-weight: normal;
+    }
+    </style>
+    
 </head>
 <body>
+
+<!-- GLOBAL LOADING MASK BEGIN -->
+<div id="loading-mask" style=""></div>
+<div id="loading">
+    <div class="loading-indicator"><img src="/gforumstatic/themes/default/images/large-loading.gif" width="32" height="32" style="margin-right:8px;float:left;vertical-align:top;"/>GForum - <a href="http://code.google.com/p/gforum">http://code.google.com/p/gforum</a><br /><span id="loading-msg">Loading styles and images...</span></div>
+</div>
+<!-- GLOBAL LOADING MASK END -->
 
 <p>
 <a href="{{logout_url}}">Logout</a>
 </p>
-<h1>GForum Administration</h2>
+<h1>GForum Admin Interface</h2>
 
-<div id="forums_div">
-{% if not has_forums %}
-No forums
-{% endif %}
-
-{% if has_forums %}
-<table border="1" id="forums_table">
-  <thead>
-    <tr>
-      <th>Forum name</th>
-      <th>Threads</th>
-      <th>Messages</th>
-      <th>Last post date</th>
-    </tr>
-  </thead>
-  <tbody>
-  {% for forum in forums %}
-  <tr>
-    <td>
-      <a href="{{forumpath}}/f/{{forum.permalink}}">{{forum.name}}</a>
-    </td>
-    <td>
-      {{forum.threads_number}}
-    </td>
-    <td>
-      {{forum.messages_number}}
-    </td>
-    <td>
-      {{forum.last_post_date}}
-    </td>
-  </tr>
-  {% endfor %}  
-  </tbody>
-</table>
-{% endif %}
-</div>
-
-<p>
-<a href="#" id="create_forum_link">Create forum</a>
-</p>
-
-<div id="create_forum_form_div" class="hiddenElement">
-
-<form id="create_forum_form">
-<table>
-  <tr>
-    <td>Name:</td>
-    <td><input id="forum_name_i"      type="text" name="forum_name" /></td>
-  </tr>
-  <tr>
-    <td>Permalink:</td>
-    <td><input id="forum_permalink_i" type="text" name="forum_permalink"/></td>
-  </tr>
-  <tr>
-    <td>Description:</td>
-    <td><textarea id="forum_description_ta" name="forum_description"></textarea></td>
-  </tr>
-
-</table>
-<input type="button" id="create_forum_button" value="Create forum"/>
-</form>
-
-</div>
-<!-- BEGIN SCRIPT SECTION -->
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js"></script>
-
-<script type="text/javascript">
-var gforumadmin = {}
-
-$(document).ready(function() {
-    setEventHandlers();
-});
-
-function setEventHandlers() {
-    $('#create_forum_link').click(gforumadmin.showHideCreateForumForm);
-    $('#create_forum_button').click(gforumadmin.createForum);
-    $('#forum_name_i').keyup(gforumadmin.printForumPermalink);
-}
-
-gforumadmin.printForumPermalink = function() {
-    $('#forum_permalink_i').val(gforumadmin.translit($('#forum_name_i').val()));
-}
-
-gforumadmin.showHideCreateForumForm = function() {
-    if ($('#create_forum_form_div').hasClass('hiddenElement')) {
-        $('#create_forum_form_div').removeClass('hiddenElement');
-        $('#create_forum_form_div').addClass('visibleElement');
-        $('#create_forum_link').html('Hide');
-    } else if ($('#create_forum_form_div').hasClass('visibleElement')) {
-        $('#create_forum_form_div').removeClass('visibleElement');
-        $('#create_forum_form_div').addClass('hiddenElement');
-        $('#create_forum_link').html('Create forum');
-    }
-} 
-
-gforumadmin.createForum = function() {
-    //$('#forum_permalink_i').val(gforumadmin.translit($('#forum_name_i').val()))
-    
-    var postUrl = '{{forumpath}}/api/v1/create_forum';
-    jQuery.ajax({
-        type: 'POST',
-        //url: $('#post_message_form').attr('action'),
-        url: postUrl,
-        data: {
-            forum_name     :   $('#forum_name_i').val(),
-            forum_permalink:   $('#forum_permalink_i').val(),
-            forum_description: $('#forum_description_ta').val()
-        },
-        success: function(data, textStatus, jqXHR) {
-            var resp = jQuery.parseJSON(data);
-            if (resp.status == 'ok') {
-                location.reload();
-            } else {
-                alert(resp.errorMsg);
-            }
-        }
-    });
-    
-}   
+<div id="mainPanelDiv"></div>
 
 
-var tmap = [];
-tmap[' ']='_';
-tmap['а']='a';
-tmap['б']='b';
-tmap['в']='v';
-tmap['г']='g';
-tmap['д']='d';
-tmap['е']='e';
-tmap['ё']='jo';
-tmap['ж']='zh';
-tmap['з']='z';
-tmap['и']='i';
-tmap['й']='jj';
-tmap['к']='k';
-tmap['л']='l';
-tmap['м']='m';
-tmap['н']='n';
-tmap['о']='o';
-tmap['п']='p';
-tmap['р']='r';
-tmap['с']='s';
-tmap['т']='t';
-tmap['у']='u';
-tmap['ф']='f';
-tmap['х']='kh';
-tmap['ц']='ts';
-tmap['ч']='ch';
-tmap['ш']='sh';
-tmap['щ']='shh';
-tmap['ъ']='';
-tmap['ы']='y';
-tmap['ь']='';
-tmap['э']='eh';
-tmap['ю']='ju';
-tmap['я']='ja';
-tmap['А']='A';
-tmap['Б']='B';
-tmap['В']='V';
-tmap['Г']='G';
-tmap['Д']='D';
-tmap['Е']='E';
-tmap['Ё']='Jo';
-tmap['Ж']='Zh';
-tmap['З']='Z';
-tmap['И']='I';
-tmap['Й']='Jj';
-tmap['К']='K';
-tmap['Л']='L';
-tmap['М']='M';
-tmap['Н']='N';
-tmap['О']='O';
-tmap['П']='P';
-tmap['Р']='R';
-tmap['С']='S';
-tmap['Т']='T';
-tmap['У']='U';
-tmap['Ф']='F';
-tmap['Х']='Kh';
-tmap['Ц']='C';
-tmap['Ч']='Ch';
-tmap['Ш']='Sh';
-tmap['Щ']='Shh';
-tmap['Ъ']='';
-tmap['Ы']='Y';
-tmap['Ь']='';
-tmap['Э']='Eh';
-tmap['Ю']='Ju';
-tmap['Я']='Ja';
+<!-- LOADING MASK SCOPE BEGIN --> 
 
-gforumadmin.translit = function(txt) {
-    var txt1 = [];
-    for (var i=0; i<txt.length; i++) {
-        var c = tmap[txt.charAt(i)];
-        if (c) txt1.push(c);
-        else   txt1.push(txt.charAt(i));
-    }
-    return txt1.join('');
-}
-</script>
-<!-- END SCRIPT SECTION -->
+<link rel="stylesheet" type="text/css" href="http://extjs.cachefly.net/ext-3.3.1/resources/css/ext-all.css" />
+<link rel="stylesheet" type="text/css" href="/gforumstatic/themes/default/css/admin.css"/>
+
+<script type="text/javascript">document.getElementById('loading-msg').innerHTML = 'Loading Core API...';</script>
+
+<script type="text/javascript" src="http://extjs.cachefly.net/ext-3.3.1/adapter/ext/ext-base.js"></script> 
+
+<script type="text/javascript">document.getElementById('loading-msg').innerHTML = 'Loading UI Components...';</script>
+
+<script type="text/javascript" src="http://extjs.cachefly.net/ext-3.3.1/ext-all.js"></script>
+
+<script type="text/javascript">document.getElementById('loading-msg').innerHTML = 'Initializing application...';</script>
+
+<script src="/gforumstatic/themes/default/js/admin.js"></script>
+
+<script type="text/javascript">org.gforum.admin.forumPath = '{{forumpath}}';</script>
+
+
+
+<!-- LOADING MASK SCOPE END --->
+
 </body>
 </html>
