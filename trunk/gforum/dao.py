@@ -72,6 +72,32 @@ def createNewForum(name, permalink, description):
     forum.threads_number = 0
     forum.put()
     return forum
+
+def updateForum(id, name, permalink, description):
+    logging.info('[updateForum]')
+    id = int(id)
+    forum = models.GForumForum.get_by_id(id)
+    if not forum:
+        raise ValueError('forum_id')
+        
+    name = util.normTextValue(name)
+    if not name:
+        raise ValueError('forum_name')
+
+    permalink = util.normTextValue(permalink)
+    if not permalink:
+        permalink = name
+    permalink = util.makeCorrectPermalink(permalink)
+    description = util.normHtmlValue(description)
+    forum2 = getForumByPermalink(permalink)
+    if forum2 and forum2.key().id() != id:
+        raise ValueError('forum_exist')
+
+    forum.name = name
+    forum.permalink = permalink
+    forum.description = description
+    forum.put()
+    return forum
     
 def renderForumJson(f):
     if type(f) == type([]):
