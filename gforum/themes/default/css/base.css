@@ -150,3 +150,7 @@ pun .blocktable td {
 }
 
 */
+
+.invalid-field {
+    border: 2px solid #ff0000 !important;
+}

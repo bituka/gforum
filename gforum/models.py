@@ -92,13 +92,6 @@ class GForumTwitterData(db.Model):
     full_name = db.StringProperty()
     uid = db.StringProperty()
 
-class GForumGravatarData(db.Model):
-    size = db.IntegerProperty()
-    email= db.StringProperty()
-    hash = db.StringProperty()
-    create_date = db.DateTimeProperty(auto_now_add=True)
-    update_date = db.DateTimeProperty(auto_now=True)
-    
 class GForumUser(db.Model):
     first_name = db.StringProperty()
     last_name  = db.StringProperty()
@@ -107,7 +100,9 @@ class GForumUser(db.Model):
     email        = db.StringProperty()
     create_date  = db.DateTimeProperty(auto_now_add=True)
     last_login_date = db.DateTimeProperty()
-    avatar_url   = db.StringProperty()
+    use_gravatar    = db.BooleanProperty()
+    gravatar_hash   = db.StringProperty()
+    image_key       = db.StringProperty()
     where_from   = db.StringProperty()
     messages_number = db.IntegerProperty()
     message_list    = db.ListProperty(db.Key)
@@ -154,9 +149,12 @@ class GForumSession(db.Model):
     update_date  = db.DateTimeProperty(auto_now=True)
 
 class GForumImage(db.Model):
-    blob = db.BlobProperty()
+    blob         = db.BlobProperty()
     content_type = db.StringProperty()
+    author_key   = db.StringProperty()
     create_date  = db.DateTimeProperty(auto_now_add=True)
     update_date  = db.DateTimeProperty(auto_now=True)
     is_avatar    = db.BooleanProperty()
+    width        = db.IntegerProperty()
+    height       = db.IntegerProperty()
 
