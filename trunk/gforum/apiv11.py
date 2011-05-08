@@ -26,7 +26,7 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 import gforum.settings
 
 gforum_root  = gforum.settings.GFORUM_FORUM_PATH
-api_root     = '%s/api/v1/' % gforum_root
+apiv1_root   = '%s/api/v1/' % gforum_root
 
 class PostMessageApi(webapp.RequestHandler):
     
@@ -101,7 +101,7 @@ class CreateThreadApi(webapp.RequestHandler):
             message_text = request.get('message_text')
             thread = gforum.thread.createNewThread(forum_key, thread_title, message_text, user)
             #rendered_forum = renderForumJson(forum)
-            gforum.util.writeApiResponse(response, 'ok', 'ok', '"fuck"')
+            gforum.util.writeApiResponse(response, 'ok', 'ok', '')
         except ValueError:
             #msg = str(va)
             msg = 'Wrong value!'
@@ -111,7 +111,27 @@ class CreateThreadApi(webapp.RequestHandler):
             gforum.util.writeApiResponse(response, 'fail', 'Error occured', 'null')
             
 
-    
+def CheckNicknameApi(webapp.RequestHandler):  
+    def post(self):
+        self.handler()
+        
+     def get(self):
+        self.handler()
+
+    def handler(self):
+        request = self.request
+        response = self.response
+        logging.info('[CheckNicknameApi]')
+        try:
+            nickname = request.get('nickname')
+            result = dao.isNicknameUsed(nickname)
+            gforum.util.writeApiResponse(response, 'ok', 'ok', '{"isNicknameUsed" : %s}' % ('true' if result else 'false'))
+        except ValueError, ve:
+            msg = 'Wrong value! ' + str(ve)
+            logging.error('[CheckNicknameApi] error: ' + msg)
+            gforum.util.writeApiResponse(response, 'fail', msg, '')
+        except:
+            gforum.util.writeApiResponse(response, 'fail', 'Error occured', 'null')
 
 class EditProfileApi(webapp.RequestHandler):
     def post(self):
@@ -169,10 +189,11 @@ application = webapp.WSGIApplication([
   #(format('%s/api/v1/create_thread'  % gforum_root), CreateThreadApi),
   #(format('%s/api/v1/create_forum'   % gforum_root), CreateForumApi),
   #(format('%s/api/v1/edit_profile'   % gforum_root), EditProfileApi)
-  ('%s/api/v1/post_message'   % gforum_root, PostMessageApi),
-  ('%s/api/v1/create_thread'  % gforum_root, CreateThreadApi),
-  ('%s/api/v1/create_forum'   % gforum_root, CreateForumApi),
-  ('%s/api/v1/edit_profile'   % gforum_root, EditProfileApi)
+  ('%s/post_message'   % apiv1_root, PostMessageApi),
+  ('%s/create_thread'  % apiv1_root, CreateThreadApi),
+  ('%s/create_forum'   % apiv1_root, CreateForumApi),
+  ('%s/edit_profile'   % apiv1_root, EditProfileApi),
+  ('%s/check_nickname' % apiv1_root, CheckNicknameApi)
 ], debug=True)
 
 def main():

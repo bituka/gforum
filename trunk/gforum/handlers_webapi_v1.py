@@ -136,5 +136,106 @@ class GForumPostMessageApiHandler(webapp.RequestHandler):
         logging.info('[GForumPostMessageApiHandler.handle] thread_key=\'%s\''   % thread_key)
         logging.info('[GForumPostMessageApiHandler.handle] message_text=\'%s\'' % message_text)
         thread = dao.createNewMessage(thread_key, message_text, user)
-        util.writeApiResponse(self.response, 'ok', 'ok', 'null')          
+        util.writeApiResponse(self.response, 'ok', 'ok', 'null')      
+        
+class GForumCheckNicknameApiHandler(webapp.RequestHandler):  
+    def post(self):
+        self.handler()
+    
+
+    def get(self):
+        self.handler()
      
+    def handler(self):   
+        try:
+            self.doHandle()
+        except ValueError, e:
+            util.writeApiResponse(self.response, 'fail', str(e), 'null')
+        except:
+            util.writeApiResponse(self.response, 'fail', 'Error occured', 'null')
+
+    def doHandle(self):
+        request = self.request
+        response = self.response
+        logging.info('[GForumCheckNicknameApiHandler]')
+        try:
+            nickname = request.get('nickname')
+            result = dao.isNicknameUsed(nickname)
+            util.writeApiResponse(response, 'ok', 'ok', '{"isNicknameUsed" : %s}' % ('true' if result else 'false'))
+        except ValueError, ve:
+            msg = 'Wrong value! ' + str(ve)
+            logging.info('[GForumCheckNicknameApiHandler] error: ' + msg)
+            util.writeApiResponse(response, 'fail', msg, '')
+        except Exception, ex:
+            logging.info('[GForumCheckNicknameApiHandler] error!! ' + str(ex))
+            util.writeApiResponse(response, 'fail', 'Error occured', 'null')            
+     
+     
+class GForumCheckEmailApiHandler(webapp.RequestHandler):  
+    def post(self):
+        self.handler()
+    
+
+    def get(self):
+        self.handler()
+     
+    def handler(self):   
+        try:
+            self.doHandle()
+        except ValueError, e:
+            util.writeApiResponse(self.response, 'fail', str(e), 'null')
+        except:
+            util.writeApiResponse(self.response, 'fail', 'Error occured', 'null')
+
+    def doHandle(self):
+        request = self.request
+        response = self.response
+        logging.info('[GForumCheckEmailApiHandler]')
+        try:
+            email = request.get('email')
+            result = dao.isEmailUsed(email)
+            util.writeApiResponse(response, 'ok', 'ok', '{"isEmailUsed" : %s}' % ('true' if result else 'false'))
+        except ValueError, ve:
+            msg = 'Wrong value! ' + str(ve)
+            logging.info('[GForumCheckEmailApiHandler] error: ' + msg)
+            util.writeApiResponse(response, 'fail', msg, '')
+        except Exception, ex:
+            logging.info('[GForumCheckEmailApiHandler] error!! ' + str(ex))
+            util.writeApiResponse(response, 'fail', 'Error occured', 'null')       
+            
+class GForumEditProfileApiHandler(webapp.RequestHandler):
+    def post(self):
+        try:
+            user = sessions.getAuthorizedUser(self.request, self.response)
+            if user:
+                self.handle(user)
+            else:
+                util.writeApiResponse(response, 'fail', 'Only authorized users are allowed to edit profiles', 'null')
+        except ValueError, e:
+            util.writeApiResponse(self.response, 'fail', str(e), 'null')
+        except Exception, e:
+            logging.error('[GForumEditProfileApiHandler.post] error: %s' % e)
+            util.writeApiResponse(self.response, 'fail', 'Error occured', 'null')                
+
+    def handle(self, user):
+        logging.info('[GForumEditProfileApiHandler.handle]')
+        nick_name    = self.request.get('nick_name').strip()
+        email        = self.request.get('email').strip()
+        first_name   = self.request.get('first_name').strip()
+        last_name    = self.request.get('last_name').strip()
+        where_from   = self.request.get('where_from').strip()
+        #logging.info('nick_name = %s' % nick_name)
+        #logging.info('email = %s' % email)
+        #logging.info('first_name = %s' % first_name)
+        #logging.info('last_name = %s' % last_name)
+        #logging.info('where_from = %s' % where_from)
+        
+        data = {
+            'nick_name': nick_name,
+            'email': email,
+            'first_name':first_name,
+            'last_name':last_name,
+            'where_from':where_from
+        }
+        thread = dao.editUserProfile(user, data)
+        util.writeApiResponse(self.response, 'ok', 'ok', 'null')              

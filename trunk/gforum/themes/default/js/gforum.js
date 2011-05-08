@@ -109,3 +109,65 @@ gforum.validateEmail = function(value) {
     return emailPattern.test(value);  
 } 
 
+gforum.saveProfileData = function(opt) {
+    try {
+    jQuery.ajax({
+        type: 'POST',
+        url: opt.forum_root + '/api/v1/edit_profile',
+        data: {
+            nick_name:  opt.nick_name,
+            first_name: opt.first_name,
+            last_name:  opt.last_name,
+            where_from: opt.where_from,
+            email:      opt.email
+        },
+        success: function(data, textStatus, jqXHR) {
+            if (opt.callback) {
+                opt.callback.call(this,data);
+            }
+        },
+        error: function(o) {
+            opt.callback.call(this,{
+                status: 'fail',
+                errorMsg: o.statusText ? o.statusText : 'Error occured!'
+            });
+        }
+    }); 
+    } catch (e) {
+        console.
+        opt.callback.call(this,{
+            status: 'fail',
+            errorMsg: ''+e
+        });
+    }
+}
+
+gforum.checkNickname = function(opt) {
+    jQuery.ajax({
+        type: 'POST',
+        url: opt.forum_root + '/api/v1/check_nickname',
+        data: {
+            nickname:  opt.nickname
+        },
+        success: function(data, textStatus, jqXHR) {
+            if (opt.callback) {
+                opt.callback.call(this,data.data.isNicknameUsed);
+            }
+        }
+    }); 
+}
+
+gforum.checkEmail = function(opt) {
+    jQuery.ajax({
+        type: 'POST',
+        url: opt.forum_root + '/api/v1/check_email',
+        data: {
+            email:  opt.email
+        },
+        success: function(data, textStatus, jqXHR) {
+            if (opt.callback) {
+                opt.callback.call(this,data.data.isEmailUsed);
+            }
+        }
+    }); 
+}

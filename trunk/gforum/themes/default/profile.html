@@ -24,41 +24,39 @@
 
 <h1>{{user.nick_name}}</h1>
 
+<hr>
+
+<h2>Profile settings</h2>
 <table style="width:600px; border-style: solid; border-width: 1px; border-collapse: collapse; border-color: #CCCCCC; margin-top: 10px; background: #EBF1F5;">
   <tbody>
   <tr>
     <td style="font-weight: bold; width:150px;">Nick name: </td>
     <td style="width: auto;">
       <input id="nick_name_i" type="text" value="{{user.nick_name}}">
-      <a id="save_nick_name_link" href="#">Save</a>
     </td>
   </tr>
   <tr>
     <td style="background: #EBF1F5;">First name: </td>
     <td>
       <input id="first_name_i" type="text" value="{% if user.first_name %}{{user.first_name}}{% endif %}">   
-      <a id="save_first_name_link" href="#">Save</a>
     </td>
   </tr>
   <tr>
     <td style="background: #EBF1F5;">Last name: </td>
     <td>
       <input id="last_name_i" type="text" value="{% if user.last_name %}{{user.last_name}}{% endif %}">
-      <a id="save_last_name_link" href="#">Save</a>
     </td>
   </tr>
   <tr>
     <td style="background: #EBF1F5;">Where from:</td>
     <td>
       <input id="where_from_i" type="text" value="{% if user.where_from %}{{user.where_from}}{% endif %}">
-      <a id="save_where_from_link" href="#">Save</a>
     </td>
   </tr>
   <tr>
     <td style="background: #EBF1F5;">Email: </td>
     <td>
       <input id="email_i" type="text" value="{% if user.email %}{{user.email}}{% endif %}">
-      <a id="save_email_link" href="#">Save</a>
     </td>
   </tr>
   <tr>
@@ -66,11 +64,25 @@
     <td>{{user.messages_number}}</td>
   </tr>
   <tr>
+    <td colspan="2" style="width: 100%; padding: 10px; align: center; text-align: center; ">
+      <a href="#" id="save_profile_settings_link">Save</a>
+    </td>
+  </tr>
+</table>
+
+<h2>Avatar settings</h2>
+
+<table>
+  <tr>
     <td style="background: #EBF1F5; vertical-align: top;">
       Avatar:
       <br/>
       <div id="avatar_div" style="width:100%; text-align: center;  align: center;">
-        <img src="{{user.avatar_url}}">
+        {% if profile_user.use_gravatar %}
+            <img src="http://www.gravatar.com/avatar/{{profile_user.gravatar_hash}}">
+        {% else %}
+            <img src="{{forumpath}}/image/{{profile_user.image_key}}">
+        {% endif %}      
       </div>
     </td>
     <td>
@@ -142,7 +154,13 @@
   </tr>
   <tr>
     <td style="font-weight: bold;">Avatar:</td>
-    <td><img src="{{profile_user.avatar_url}}"></td>
+    <td>
+        {% if profile_user.use_gravatar %}
+            <img src="http://www.gravatar.com/avatar/{{profile_user.gravatar_hash}}">
+        {% else %}
+            <img src="{{forumpath}}/image/{{profile_user.image_key}}">
+        {% endif %}      
+    </td>
   </tr>
   </tbody>
 </table>
@@ -161,7 +179,61 @@ $(document).ready(function() {
     setEventHandlers();
 });
 
+// timers
+var nicknameTimer, emailTimer;
+// current values
+var currentNickname, currentEmail;
+
 function setEventHandlers() {
+    currentNickname = $('#nick_name_i').val();
+    currentEmail    = $('#email_i').val();
+    
+    $('#nick_name_i').keyup(function() {
+        if (nicknameTimer) {
+            clearTimeout(nicknameTimer);
+        }
+        nicknameTimer = setTimeout(function() {
+            gforum.checkNickname({
+                forum_root: '{{forumpath}}',
+                nickname:   $('#nick_name_i').val(),
+                callback: function(nicknameIsUsed) {
+                    if ($('#nick_name_i').val() == currentNickname) {
+                        $('#nick_name_i').removeClass('invalid-field');
+                        return;
+                    }
+                    if (nicknameIsUsed) {
+                        $('#nick_name_i').addClass('invalid-field');
+                    } else {
+                        $('#nick_name_i').removeClass('invalid-field');
+                    }
+                }
+            });
+        }, 300);
+    });
+    
+    $('#email_i').keyup(function() {
+        if (emailTimer) {
+            clearTimeout(emailTimer);
+        }
+        emailTimer = setTimeout(function() {
+            gforum.checkEmail({
+                forum_root: '{{forumpath}}',
+                email:      $('#email_i').val(),
+                callback: function(emailIsUsed) {
+                    if ($('#email_i').val() == currentEmail) {
+                        $('#email_i').removeClass('invalid-field');
+                        return;
+                    }
+                    if (emailIsUsed) {
+                        $('#email_i').addClass('invalid-field');
+                    } else {
+                        $('#email_i').removeClass('invalid-field');
+                    }
+                }
+            });
+        }, 300);
+    });
+    
     $('#save_nick_name_link').click(function() {saveData('#nick_name_i', 'nick_name');});
     $('#save_first_name_link').click(function(){saveData('#first_name_i', 'first_name');});
     $('#save_last_name_link').click(function() {saveData('#last_name_i', 'last_name');});
@@ -176,6 +248,7 @@ function setEventHandlers() {
     });
     $('#check_gravatar_link').click(checkGravatar);
     $('#save_gravatar_link').click(saveGravatar);
+    $('#save_profile_settings_link').click(saveProfileSettings);
 }
 function saveData(id, pn) {
     var opt = {
@@ -220,6 +293,34 @@ function saveGravatar() {
             }
         }
     });
+}
+
+function saveProfileSettings() {
+    var emailValue = $('#email_i').val().trim();
+    if (!gforum.validateEmail(emailValue)) {
+        alert('Incorrect email address!');
+        return;
+    }
+    
+    var opt = {
+        forum_root: '{{forumpath}}',
+        nick_name:  $('#nick_name_i').val(),
+        first_name: $('#first_name_i').val(),
+        last_name:  $('#last_name_i').val(),
+        //where_from: $('#where_from_i').val(),
+        email:      emailValue
+    };
+
+    opt.callback = function(resp) {
+        if (resp.status == 'ok') {
+            alert('Data changed ok!');
+            location.reload();
+        } else {
+            alert(resp.errorMsg);
+        }
+    };
+    
+    gforum.saveProfileData(opt);
 }
 </script>
 

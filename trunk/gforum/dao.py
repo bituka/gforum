@@ -19,12 +19,15 @@ __author__ = 'Ivan P. Ryndin'
 
 import logging
 import os
+import hashlib
 
+from google.appengine.api import images
 from google.appengine.ext import db
 from google.appengine.ext.webapp import template
 
 from gforum import models
 from gforum import util
+from gforum import settings
 
 # Log a message each time this module get loaded.
 logging.info('Loading %s, app version = %s', __name__, os.getenv('CURRENT_VERSION_ID'))
@@ -131,13 +134,15 @@ def createNewUser(obj, objStr):
     user.messages_number = 0
     user.message_list = []
     
+    avatar_url = None
+    
     if provider.find('vkontakte.ru')>-1:
         user.auth_provider = 'vkontakte'
         data = createNewVkontakteData(obj, objStr)
         user.auth_provider_key = str(data.key())
         user.first_name     = data.first_name
         user.last_name      = data.last_name
-        user.avatar_url     = data.avatar_url
+        avatar_url          = data.avatar_url
         user.nick_name      = data.nick_name.strip()
         if len(user.nick_name)==0:
             user.nick_name = '%s %s' % (user.first_name, user.last_name)
@@ -154,7 +159,7 @@ def createNewUser(obj, objStr):
         data = createNewTwitterData(obj, objStr)
         user.auth_provider_key = str(data.key())        
         user.nick_name   = data.nick_name
-        user.avatar_url  = data.avatar_url
+        avatar_url       = data.avatar_url
     elif provider.find('facebook.com')>-1:
         user.auth_provider = 'facebook'
         data = createNewFacebookData(obj, objStr)
@@ -162,21 +167,34 @@ def createNewUser(obj, objStr):
         user.first_name  = data.first_name
         user.last_name   = data.last_name
         user.nick_name   = data.full_name.strip()
-        user.avatar_url  = data.avatar_url
+        avatar_url       = data.avatar_url
         user.email       = data.email     
     elif provider.find('myopenid.com')>-1:
         user.auth_provider = 'myopenid'
         data = createNewMyopenidData(obj, objStr)
         user.auth_provider_key = str(data.key())
         user.nick_name   = data.nick_name
+    
+    user.use_gravatar = False
+    
+    image = None
+    if avatar_url:
+        image = fetchAndSaveAvatar(avatar_url)
+        if image:
+            user.image_key = str(image.key())
+            
+    if not avatar_url and user.email:
+        m = hashlib.md5()
+        m.update(user.email)
+        user.gravatar_hash = m.hexdigest()
+        user.use_gravatar = True
 
     user.nick_name_lower = user.nick_name.strip().lower()
-    # seems that we don't need following,
-    # because link to twitter, vkontakte avatars are permanent
-    #if user.avatar_url:
-    #    image = fetchAndSaveAvatar(user.avatar_url)
-    #    user.avatar_url = util.generateImageUrl(image)
     user.put()
+    
+    if image:
+        image.author_key = str(user.key())
+        image.put()
     return user
 
 def createNewMyopenidData(obj, objStr):
@@ -260,6 +278,13 @@ def fetchAndSaveAvatar(url):
         if result.status_code == 200:
             image = models.GForumImage()
             image.blob = result.content
+            # get image width, height
+            # resize avatar if necessary
+            image_object = images.Image(image.blob)
+            if image_object.width > settings.GFORUM_MAX_AVATAR_SIZE or image_object.height > settings.GFORUM_MAX_AVATAR_SIZE:
+                image_object.resize(settings.GFORUM_MAX_AVATAR_SIZE,settings.GFORUM_MAX_AVATAR_SIZE)
+            image.width  = image_object.width
+            image.height = image_object.height
             image.content_type = util.getImageContentTypeByUrl(url)
             image.is_avatar = True
             image.put()
@@ -390,4 +415,53 @@ def getThreadAndMessages(thread_id):
     }
     return result
 
-
+def isNicknameUsed(nickname):
+    nickname2 = nickname.strip().lower()
+    users = models.GForumUser.all().filter('nick_name_lower',nickname2).fetch(limit=1)
+    if len(users)>0:
+        return True
+    else:
+        return False
+    
+def isEmailUsed(email):
+    email2 = email.strip().lower()
+    users = models.GForumUser.all().filter('email',email2).fetch(limit=1)
+    if len(users)>0:
+        return True
+    else:
+        return False
+        
+def editUserProfile(user, data):
+    nick_name = data['nick_name'].strip()
+    email     = data['email'].strip()
+    if len(nick_name) == 0:
+        raise ValueError('Nickname shouldn\'t be empty')
+    if not util.validateEmail(email):
+        raise ValueError('Invalid email address')
+    if user.email != data['email'] and isEmailUsed(data['email']):
+        raise ValueError('This email is already in use')
+    if user.nick_name != data['nick_name'] and isNicknameUsed(data['nick_name']):
+        raise ValueError('This nickname is already in use')
+    
+    first_name = data['first_name'].strip()
+    if len(first_name)==0:
+        first_name = None
+    last_name = data['last_name'].strip()
+    if len(last_name)==0:
+        last_name = None
+    where_from = data['where_from'].strip()
+    if len(where_from)==0:
+        where_from = None
+    
+    user.nick_name = nick_name
+    user.nick_name_lower = nick_name.strip().lower()
+    user.email = email
+    user.first_name = first_name
+    user.last_name = last_name
+    user.where_from = where_from
+    
+    user.put()
+    
+    
+    
+    

@@ -49,8 +49,11 @@ ROUTES = [
     ('%s/logout/loginza'% gforum_root, handlers.GForumLoginzaLogoutHandler),
     ('%s/api/v1/admin/forums'  % gforum_root, handlers_webapi_v1.GForumListForumsApiHandler),
     ('%s/api/v1/admin/create_forum'  % gforum_root, handlers_webapi_v1.GForumCreateForumApiHandler),
-    ('%s/api/v1/create_thread' % gforum_root, handlers_webapi_v1.GForumCreateThreadApiHandler),
-    ('%s/api/v1/post_message'  % gforum_root, handlers_webapi_v1.GForumPostMessageApiHandler),
+    ('%s/api/v1/create_thread'  % gforum_root, handlers_webapi_v1.GForumCreateThreadApiHandler),
+    ('%s/api/v1/post_message'   % gforum_root, handlers_webapi_v1.GForumPostMessageApiHandler),
+    ('%s/api/v1/check_nickname' % gforum_root, handlers_webapi_v1.GForumCheckNicknameApiHandler),
+    ('%s/api/v1/check_email'    % gforum_root, handlers_webapi_v1.GForumCheckEmailApiHandler),
+    ('%s/api/v1/edit_profile'   % gforum_root, handlers_webapi_v1.GForumEditProfileApiHandler),
     ('%s/admin.*'       % gforum_root, handlers_admin.GForumAdminHandler)
 ]
 

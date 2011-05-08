@@ -35,3 +35,12 @@ GFORUM_SESSION_EXPIRE_INTERVAL = 30
 
 # name of the cookie where session key is stored
 GFORUM_SESSION_COOKIE_NAME = 'gforum_session'
+
+##############################################################################
+############################ Misc settings ###################################
+##############################################################################
+
+# max avatar width or height in pixels
+GFORUM_MAX_AVATAR_SIZE = 100
+
+
