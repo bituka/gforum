@@ -32,6 +32,7 @@ from gforum import util
 from gforum import settings
 from gforum import sessions
 from gforum import dao
+from gforum import loginza_emulator
 
 # Log a message each time this module get loaded.
 logging.info('Loading %s, app version = %s', __name__, os.getenv('CURRENT_VERSION_ID'))
@@ -259,12 +260,15 @@ class GForumLoginzaLoginHandler(GForumAbstractHandler):
                 self.redirectForumHome()
         except:
             logging.error('[GForumLoginzaLoginHandler.post] Error occured: cannot fetch data from loginza!')
-            if settings.GFORUM_USE_VKONTAKTE_EMULATOR:
+            if settings.GFORUM_USE_LOGINZA_EMULATOR:
                 logging.error('[GForumLoginzaLoginHandler.post] Running loginza emulator...')
+                '''
                 content = '%s%s%s%s' % ('{"identity":"http:\/\/vkontakte.ru\/id27610","provider":"http:\/\/vkontakte.ru\/","uid":27610,', 
                   '"name":{"first_name":"\u0418\u0432\u0430\u043d","last_name":"\u0420\u044b\u043d\u0434\u0438\u043d"},', 
                   '"nickname":"","gender":"M","dob":"1983-03-18","address":{"home":{"country":"1"}},',
                   '"photo":"http:\/\/cs408.vkontakte.ru\/u27610\/e_8e8b9f02.jpg"}')
+                '''
+                content = loginza_emulator.getEmulatedResponse('vkontakte.ru')
                 self.handleLoginzaResponse(content)
         self.redirectForumHome()
 
