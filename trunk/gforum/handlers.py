@@ -35,7 +35,7 @@ from gforum import dao
 from gforum import loginza_emulator
 
 # Log a message each time this module get loaded.
-logging.info('Loading %s, app version = %s', __name__, os.getenv('CURRENT_VERSION_ID'))
+logging.debug('Loading %s, app version = %s', __name__, os.getenv('CURRENT_VERSION_ID'))
 
 gforum_root  = settings.GFORUM_FORUM_PATH
 gforum_theme = settings.GFORUM_THEME
